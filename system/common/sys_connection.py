@@ -2,7 +2,7 @@ import socket
 import threading
 import time
 
-HOST = "192.168.82.11"   # Standard loopback interface address (localhost)
+HOST = "192.168.82.10"   # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
 class Socket_Server(threading.Thread):

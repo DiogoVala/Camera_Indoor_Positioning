@@ -6,11 +6,15 @@ import datetime
 import math
 import cv2
 import numpy as np
+import sys
 from numpy.linalg import inv
 from numpy import array, cross
 from numpy.linalg import solve, norm
 from scipy.spatial.transform import Rotation
 from sys_calibration_bare import *
+
+# Add common modules path
+sys.path.insert(1, '/home/pi/Camera_Indoor_Positioning/system/common')
 from sys_connection import *
 import image_processor as imgp
 import blob_detector as blob
