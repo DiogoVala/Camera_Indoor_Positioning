@@ -11,7 +11,7 @@ crop_window = 30
 # Blob detector (High Resolution)
 params = cv2.SimpleBlobDetector_Params()
 params.filterByArea = True
-params.minArea = 5
+params.minArea = 2
 params.maxArea = 6000
 params.minDistBetweenBlobs = 80
 params.filterByCircularity = True
