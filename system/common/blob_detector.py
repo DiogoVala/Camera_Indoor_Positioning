@@ -5,7 +5,7 @@ import numpy as np
 lower_range = np.array([  0,  0, 76])
 upper_range = np.array([203,255,173])
 
-rescale_factor = 8
+rescale_factor = 2
 crop_window = 30
 
 # Blob detector (High Resolution)
