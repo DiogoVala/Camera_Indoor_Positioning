@@ -131,7 +131,7 @@ if(numDetectedMarkers == 0):
 camera = picamera.PiCamera()
 camera.resolution = camera_resolution
 camera.exposure_mode = 'sports'
-camera.iso 	= 150
+camera.iso 	= 100
 print("Camera warming up.")
 time.sleep(1)
 
