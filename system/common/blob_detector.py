@@ -5,13 +5,13 @@ import numpy as np
 lower_range = np.array([  0,  0, 76])
 upper_range = np.array([203,255,173])
 
-rescale_factor = 4
+rescale_factor = 8
 crop_window = 30
 
 # Blob detector (High Resolution)
 params = cv2.SimpleBlobDetector_Params()
 params.filterByArea = True
-params.minArea = 10
+params.minArea = 5
 params.maxArea = 6000
 params.minDistBetweenBlobs = 80
 params.filterByCircularity = True
