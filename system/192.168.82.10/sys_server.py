@@ -112,42 +112,155 @@ def frame_processor(frame):
 
 # Calculates closest approach of two lines
 def intersect(other_cam_data):
+	
+	if other_cam_data is None:
+		print("Client cannot see LED")
+	if this_cam_data is None:
+		print("Server cannot see LED")
+	
 	try:
 		P0=np.array([[this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]], [other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]]])
 		P1=np.array([[this_cam_data[0][0], this_cam_data[0][1], 0.0], [other_cam_data[0][0], other_cam_data[0][1], 0.0]])
-		
-		
-		"""P0 and P1 are NxD arrays defining N lines.
-		D is the dimension of the space. This function 
-		returns the least squares intersection of the N
-		lines from the system given by eq. 13 in 
-		http://cal.cs.illinois.edu/~johannes/research/LS_line_intersect.pdf.
-		"""
-		# generate all line direction vectors 
-		n = (P1-P0)/np.linalg.norm(P1-P0,axis=1)[:,np.newaxis] # normalized
-
-		# generate the array of all projectors 
-		projs = np.eye(n.shape[1]) - n[:,:,np.newaxis]*n[:,np.newaxis]  # I - n*n.T
-
-		# generate R matrix and q vector
-		R = projs.sum(axis=0)
-		q = (projs @ P0[:,:,np.newaxis]).sum(axis=0)
-
-		# solve the least squares problem for the 
-		# intersection point p: Rp = q
-		solution = np.linalg.lstsq(R,q,rcond=None)
-		p = solution[0]
-		#d = solution[1]
-		
-		print(this_cam_data)
-		print(f"LED at (%.2f, %.2f, %.2f)" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
-		#print(f"Distance between lines at closest approach: %.f" % (d) )
-		return p,d
 	except:
-		print("Invalid data")
-		return None
+		return
+		
+	"""P0 and P1 are NxD arrays defining N lines.
+	D is the dimension of the space. This function 
+	returns the least squares intersection of the N
+	lines from the system given by eq. 13 in 
+	http://cal.cs.illinois.edu/~johannes/research/LS_line_intersect.pdf.
+	"""
+	# generate all line direction vectors 
+	n = (P1-P0)/np.linalg.norm(P1-P0,axis=1)[:,np.newaxis] # normalized
+
+	# generate the array of all projectors 
+	projs = np.eye(n.shape[1]) - n[:,:,np.newaxis]*n[:,np.newaxis]  # I - n*n.T
+
+	# generate R matrix and q vector
+	R = projs.sum(axis=0)
+	q = (projs @ P0[:,:,np.newaxis]).sum(axis=0)
+
+	# solve the least squares problem for the 
+	# intersection point p: Rp = q
+	solution = np.linalg.lstsq(R,q,rcond=None)
+	p = solution[0]
+	
+	a0=np.array([this_cam_data[0][0], this_cam_data[0][1], 0.0])
+	a1=np.array([this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]])
+	
+	b0=np.array([other_cam_data[0][0], other_cam_data[0][1], 0.0])
+	b1=np.array([other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]])
+	_,_,d=closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)	
+
+	print(this_cam_data)
+	print(f"LED at (%.2f, %.2f, %.2f)" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
+	#print(f"Distance between lines at closest approach: %.f" % (d) )
+	#return p,d
+	return None
+
+def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False):
+
+    ''' Given two lines defined by numpy.array pairs (a0,a1,b0,b1)
+        Return the closest points on each segment and their distance
+    '''
+	
+    # If clampAll=True, set all clamps to True
+    if clampAll:
+        clampA0=True
+        clampA1=True
+        clampB0=True
+        clampB1=True
 
 
+    # Calculate denomitator
+    A = a1 - a0
+    B = b1 - b0
+    magA = np.linalg.norm(A)
+    magB = np.linalg.norm(B)
+    
+    _A = A / magA
+    _B = B / magB
+    
+    cross = np.cross(_A, _B);
+    denom = np.linalg.norm(cross)**2
+    
+    
+    # If lines are parallel (denom=0) test if lines overlap.
+    # If they don't overlap then there is a closest point solution.
+    # If they do overlap, there are infinite closest positions, but there is a closest distance
+    if not denom:
+        d0 = np.dot(_A,(b0-a0))
+        
+        # Overlap only possible with clamping
+        if clampA0 or clampA1 or clampB0 or clampB1:
+            d1 = np.dot(_A,(b1-a0))
+            
+            # Is segment B before A?
+            if d0 <= 0 >= d1:
+                if clampA0 and clampB1:
+                    if np.absolute(d0) < np.absolute(d1):
+                        return a0,b0,np.linalg.norm(a0-b0)
+                    return a0,b1,np.linalg.norm(a0-b1)
+                
+                
+            # Is segment B after A?
+            elif d0 >= magA <= d1:
+                if clampA1 and clampB0:
+                    if np.absolute(d0) < np.absolute(d1):
+                        return a1,b0,np.linalg.norm(a1-b0)
+                    return a1,b1,np.linalg.norm(a1-b1)
+                
+                
+        # Segments overlap, return distance between parallel segments
+        return None,None,np.linalg.norm(((d0*_A)+a0)-b0)
+        
+    
+    
+    # Lines criss-cross: Calculate the projected closest points
+    t = (b0 - a0);
+    detA = np.linalg.det([t, _B, cross])
+    detB = np.linalg.det([t, _A, cross])
+
+    t0 = detA/denom;
+    t1 = detB/denom;
+
+    pA = a0 + (_A * t0) # Projected closest point on segment A
+    pB = b0 + (_B * t1) # Projected closest point on segment B
+
+
+    # Clamp projections
+    if clampA0 or clampA1 or clampB0 or clampB1:
+        if clampA0 and t0 < 0:
+            pA = a0
+        elif clampA1 and t0 > magA:
+            pA = a1
+        
+        if clampB0 and t1 < 0:
+            pB = b0
+        elif clampB1 and t1 > magB:
+            pB = b1
+            
+        # Clamp projection A
+        if (clampA0 and t0 < 0) or (clampA1 and t0 > magA):
+            dot = np.dot(_B,(pA-b0))
+            if clampB0 and dot < 0:
+                dot = 0
+            elif clampB1 and dot > magB:
+                dot = magB
+            pB = b0 + (_B * dot)
+    
+        # Clamp projection B
+        if (clampB0 and t1 < 0) or (clampB1 and t1 > magB):
+            dot = np.dot(_A,(pB-a0))
+            if clampA0 and dot < 0:
+                dot = 0
+            elif clampA1 and dot > magA:
+                dot = magA
+            pA = a0 + (_A * dot)
+
+    
+    return pA,pB,np.linalg.norm(pA-pB)
+    
 ####### MAIN ####### 
 print("Starting server camera.")
 
