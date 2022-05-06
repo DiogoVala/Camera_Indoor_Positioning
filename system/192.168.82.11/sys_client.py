@@ -54,6 +54,10 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 def frame_processor(frame):
 	global this_cam_data
 
+	keypoints = [] # List of detected keypoints in the frame
+	keypoints_sizes = []
+	keypoint = None # Target LED keypoint
+
 	# Resize high resolution to low resolution
 	frame_low = cv2.resize(frame, (int(RESOLUTION[0]/blob.rescale_factor),int(RESOLUTION[1]/blob.rescale_factor)),interpolation = cv2.INTER_NEAREST)
 
@@ -62,53 +66,48 @@ def frame_processor(frame):
 
 	# Blob detector
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
-
+	
 	# Get rough LED position from low resolution mask
 	if keypoints_low:
-		leds_rough = [keypoint.pt for keypoint in keypoints_low]
-		leds_rough = [(int(x)*blob.rescale_factor, int(y)*blob.rescale_factor) for x,y in leds_rough]
+		pts_rough = [keypoint.pt for keypoint in keypoints_low] # List of keypoint coordinates in low resolution
+		pts_rough = [(int(x)*blob.rescale_factor, int(y)*blob.rescale_factor) for x,y in pts_rough] # Rescale coordinates
 
-		# Crop frame around each LED
-		leds_refined=[]
-		for led in leds_rough:
-			x=int(led[0])
-			y=int(led[1])
-			yuv_crop = frame[(y-blob.crop_window):(y+blob.crop_window), (x-blob.crop_window):(x+blob.crop_window)]
+		for pt in pts_rough:
+			pt_x=int(pt[0])
+			pt_y=int(pt[1])
+			# Crop frame around each estimated position
+			yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 			try:
-				mask = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
+				mask_high = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 			except:
 				break
 
-			# Look for blobs in each cropped region
-			keypoints_high = blob.detectBlob_HighRes(mask)
+			# Detect blobs in each cropped region
+			keypoints_tmp = blob.detectBlob_HighRes(mask_high)
+			
+			for keypoint_tmp in keypoints_tmp:
+				# Adjust keypoint coordinates according to the crop window position
+				x = keypoint_tmp.pt[0]+pt_x-blob.crop_window
+				y = keypoint_tmp.pt[1]+pt_y-blob.crop_window
+				keypoints.append(tuple((x,y)))
+				keypoints_sizes.append(cv2.countNonZero(mask_high)) # Number of white pixels
+				
+	
+	if keypoints:
+		# Select the largest blob
+		keypoint = keypoints[np.argmin(keypoints_sizes)] # Argmin because we have the number of empty pixels 
+		keypoint = np.array(keypoint, dtype=np.float32).reshape(1,1,2)
 
-			# Look for largest blob 
-			keypoint_size = 0
-			keypoint_idx = 0
-			for idx, keypoint_high in enumerate(keypoints_high):
-				if keypoint_high.size > keypoint_size:
-					keypoint_size = keypoint_high.size
-					keypoint_idx = idx
-
-			# Refine LED positions
-			led_refined = keypoints_high[keypoint_idx].pt
-			led_refined = (round(led_refined[0])+x-blob.crop_window, round(led_refined[1])+y-blob.crop_window)
-			leds_refined.append(led_refined)
-
-		# Undistort led position
-		if leds_refined:
-			leds_refined = np.array(leds_refined, dtype=np.float32)
-			leds_refined = leds_refined[:, np.newaxis, :]
-			undistorted_coords = cv2.fisheye.undistortPoints(leds_refined, cameraMatrix, cameraDistortion, None, cameraMatrix)
-
-			realWorld_coords = []
-			for coord in undistorted_coords:
-				realWorld_coords.append(getWorldCoordsAtZ(coord[0], 0, cameraMatrix, rmat, tvec))														
-
-			for coord in realWorld_coords:
-				coord.tolist()
-				this_cam_data=[(coord[0][0], coord[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
+		# Correct for camera distortion  
+		keypoint = cv2.fisheye.undistortPoints(keypoint, cameraMatrix, cameraDistortion, None, cameraMatrix)
 		
+		keypoint = keypoint[0][0]
+		
+		# Get projection coordinates in the real world
+		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
+
+		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
+
 	# Send location data to the server
 	socket_clt.txdata=this_cam_data
 	socket_clt.event.set()
