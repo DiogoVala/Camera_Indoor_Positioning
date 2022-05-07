@@ -112,6 +112,8 @@ def frame_processor(frame):
 
 # Calculates closest approach of two lines
 def intersect(other_cam_data):
+		
+	global this_cam_data
 	
 	if other_cam_data is None:
 		print("Client cannot see LED")
@@ -152,10 +154,16 @@ def intersect(other_cam_data):
 	b1=np.array([other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]])
 	_,_,d=closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)	
 
-	print(this_cam_data)
+	print("\n")
+	print(f"Server Camera at: (%.2f, %.2f, %.2f)mm" % (this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]) )
+	print(f"Client Camera at: (%.2f, %.2f, %.2f)mm" % (other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]) )
+	
 	print(f"LED at (%.2f, %.2f, %.2f)" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
-	#print(f"Distance between lines at closest approach: %.f" % (d) )
+	print(f"Distance between lines at closest approach: %.fmm" % (d) )
 	#return p,d
+	
+	this_cam_data = None
+	
 	return None
 
 def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False):
