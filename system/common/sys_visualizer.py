@@ -25,13 +25,13 @@ thickness = 3
 # Camera Settings
 RESOLUTION = (2016, 1520)
 #RESOLUTION = (4032, 3040)
-rescale_factor=2
-crop_window = 30
+rescale_factor=4
+crop_window = 100
 
 # Blob detector (High Resolution)
 params = cv2.SimpleBlobDetector_Params()
 params.filterByArea = True
-params.minArea = 2
+params.minArea = 10
 params.maxArea = 6000
 params.minDistBetweenBlobs = 80
 params.filterByCircularity = True
