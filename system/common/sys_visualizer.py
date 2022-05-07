@@ -426,7 +426,7 @@ with picamera.PiCamera() as camera:
 			
 		
 		mask = cv2.inRange(yuv, lower_range, upper_range)
-		#cv2.imwrite("a.jpg", mask)
+		
 		
 		toc = time.perf_counter()
 		print(f"Calibration time: {toc - tic:0.4f} seconds")
@@ -434,6 +434,8 @@ with picamera.PiCamera() as camera:
 		scale=0.7
 		cv2.imshow('mask', cv2.resize(mask, None, fx=scale,fy=scale))
 		cv2.imshow('Picamera',cv2.resize(frame, None, fx=scale,fy=scale))
+		cv2.imwrite("frame.jpg", frame)
+		cv2.imwrite("mask.jpg", mask)
 		
 		key=cv2.waitKey(33)
 		if key == ord('q'):
