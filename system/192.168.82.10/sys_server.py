@@ -114,12 +114,12 @@ def frame_processor(frame):
 def intersect(other_cam_data):
 		
 	global this_cam_data
-	
+	'''
 	if other_cam_data is None:
 		print("Client cannot see LED")
 	if this_cam_data is None:
 		print("Server cannot see LED")
-	
+	'''
 	try:
 		P0=np.array([[this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]], [other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]]])
 		P1=np.array([[this_cam_data[0][0], this_cam_data[0][1], 0.0], [other_cam_data[0][0], other_cam_data[0][1], 0.0]])
@@ -154,15 +154,14 @@ def intersect(other_cam_data):
 	b1=np.array([other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]])
 	_,_,d=closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)	
 
-	print("\n")
 	print(f"Server Camera at: (%.2f, %.2f, %.2f)mm" % (this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]) )
 	print(f"Client Camera at: (%.2f, %.2f, %.2f)mm" % (other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]) )
-	
-	print(f"LED at (%.2f, %.2f, %.2f)" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
+	print(f"LED at (%.2f, %.2f, %.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
 	print(f"Distance between lines at closest approach: %.fmm" % (d) )
+	print("\x1b[5A\r")
 	#return p,d
 	
-	this_cam_data = None
+	#this_cam_data = None
 	
 	return None
 
