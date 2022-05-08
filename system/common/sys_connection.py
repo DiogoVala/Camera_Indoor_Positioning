@@ -5,6 +5,8 @@ import time
 HOST = "192.168.82.10"   # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
+Socket_Con_Retries = -1 # Infinite retries
+
 class Socket_Server(threading.Thread):
     def __init__(self, output_fcn):
         super(Socket_Server, self).__init__()
@@ -42,40 +44,40 @@ class Socket_Client(threading.Thread):
         super(Socket_Client, self).__init__()
         self.terminated = False
         self.connected = False
-        self.connecting_retries = 10
+        self.connecting_retries = 0
         self.event = threading.Event()
         self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.txdata=None
-        
-        while not self.connected:
-            try:
-                self.s.connect((HOST, PORT))
-                self.connected = True
-                self.start()
-            except:
-                self.connecting_retries -= 1
-                print("Connection failed.")
-                if self.connecting_retries == 0:
-                    self.terminated = True
-                    print(f"Could not find server at {HOST}.")
-                    break
-                print("Retrying connection.")
-                time.sleep(1)
-        
+        self.start()
     def run(self):
-        while not self.terminated:
-            if self.event.wait():
+        while True:
+            while not self.connected:
                 try:
-                    message=str.encode(str(self.txdata))
-                    print("Sending:", message)
-                    self.s.send(message)
+                    self.s.connect((HOST, PORT))
+                    self.connected = True
                 except:
-                    print("Could not send data to server.")
-                    self.s.close()
-                    self.terminated = True
-                finally:
-                    self.event.clear()
-        try:
-            s.close()
-        except:
-            pass
+                    self.connecting_retries += 1
+                    print("Connection failed.")
+                    if self.connecting_retries == Socket_Con_Retries:
+                        self.terminated = True
+                        print(f"Could not find server at {HOST}.")
+                        break
+                    print("Retrying connection.")
+                    time.sleep(1)
+            
+            while not self.terminated:
+                if self.event.wait():
+                    try:
+                        message=str.encode(str(self.txdata))
+                        print("Sending:", message)
+                        self.s.send(message)
+                    except:
+                        print("Could not send data to server.")
+                        self.s.close()
+                        self.terminated = True
+                    finally:
+                        self.event.clear()
+            try:
+                s.close()
+            except:
+                pass
