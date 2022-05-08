@@ -330,7 +330,7 @@ with picamera.PiCamera() as camera:
 	
 	camera.resolution = RESOLUTION
 	camera.exposure_mode = 'sports'
-	camera.iso = 100
+	camera.iso = 150
 	#camera.color_effects = (128, 128)
 	capture = PiRGBArray(camera, size=RESOLUTION)
 	
@@ -420,9 +420,9 @@ with picamera.PiCamera() as camera:
 			
 			# Draw information about camera pose
 			txt = f"Camera position (xyz): {float(camera_pos[0]):0.2f}, {float(camera_pos[1]):0.2f} , {float(camera_pos[2]):0.2f} mm"
-			cv2.putText(frame, txt, (0,100), font, fontScale, (255,255,255), thickness, cv2.LINE_AA)
+			#cv2.putText(frame, txt, (0,100), font, fontScale, (255,255,255), thickness, cv2.LINE_AA)
 			txt = f"Euler angles (xyz): {float(camera_ori[0]):0.2f}, {float(camera_ori[1]):0.2f} , {float(camera_ori[2]):0.2f} deg"
-			cv2.putText(frame, txt, (0,200), font, fontScale, (255,255,255), thickness, cv2.LINE_AA)
+			#cv2.putText(frame, txt, (0,200), font, fontScale, (255,255,255), thickness, cv2.LINE_AA)
 			
 		
 		mask = cv2.inRange(yuv, lower_range, upper_range)
