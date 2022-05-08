@@ -150,14 +150,12 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
     return wcPoint
     
 def drawWorldAxis(frame):
-	axis=np.array([[0.0, -100.0, 0.0], [0.0, 100.0, 0.0], [-135.0, 0.0, 0.0], [135.0, 0.0,  0] , [0.0, 0.0, 0.0], [0.0, 0.0, -400.0]],dtype = np.float32)
+	axis=np.array([[0.0, 0.0, 0.0], [0.0, 1800.0, 0.0], [0.0, 0.0, 0.0], [2000.0, 0.0,  0] , [0.0, 0.0, 0.0], [0.0, 0.0, -1000.0]],dtype = np.float32)
 	projs, jac = cv2.projectPoints(axis, rvecs, tvecs, mtx, None)
 	# Y axis
-	frame = cv2.arrowedLine(frame, (int(round(projs[0][0][0],0)), int(round(projs[0][0][1], 0))), (int(round(projs[1][0][0],0)), int(round(projs[1][0][1],0))),(0,255,0), 1, tipLength = 0.05)
+	frame = cv2.arrowedLine(frame, (int(round(projs[0][0][0],0)), int(round(projs[0][0][1], 0))), (int(round(projs[1][0][0],0)), int(round(projs[1][0][1],0))),(0,255,0), 3, tipLength = 0.05)
 	# X axis
-	frame = cv2.arrowedLine(frame, (int(round(projs[2][0][0],0)), int(round(projs[2][0][1], 0))), (int(round(projs[3][0][0],0)), int(round(projs[3][0][1],0))),(30,30,255), 1, tipLength = 0.05)
-
-	#frame = cv2.line(frame, (int(round(projs[4][0][0],0)), int(round(projs[4][0][1], 0))), (int(round(projs[5][0][0],0)), int(round(projs[5][0][1],0))),(255,0,0), 2)
+	frame = cv2.arrowedLine(frame, (int(round(projs[2][0][0],0)), int(round(projs[2][0][1], 0))), (int(round(projs[3][0][0],0)), int(round(projs[3][0][1],0))),(30,30,255), 3, tipLength = 0.05)
 
 def drawRealWorld(x, y, frame):
 	frame = cv2.line(frame, (x-30, y), (x+30, y),(255,0,0), 2)
@@ -318,8 +316,8 @@ def detectBlob(frame):
 
 		x=int(keypoint[0])
 		y=int(keypoint[1])
-		frame = cv2.line(frame, (x-30, y), (x+30, y),(0,0,255), 2)
-		frame = cv2.line(frame, (x, y-30), (x, y+30),(0,0,255), 2)
+		#frame = cv2.line(frame, (x-30, y), (x+30, y),(0,0,255), 2)
+		#frame = cv2.line(frame, (x, y-30), (x, y+30),(0,0,255), 2)
 	
 	#print(f"Blob detection time: {time.perf_counter() - tic:0.4f} seconds")
 	return keypoint, frame, mask_low
