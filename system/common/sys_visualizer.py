@@ -327,13 +327,8 @@ def detectBlob(frame):
 with picamera.PiCamera() as camera:
 	
 	camera.resolution = RESOLUTION
-<<<<<<< HEAD
 	camera.exposure_mode = 'sports'
 	camera.iso = 150
-=======
-	camera.exposure_mode = 'night'
-	camera.iso = 1600
->>>>>>> 0ef757b2fc0d9a996a532fb5896d0f7ca176f181
 	#camera.color_effects = (128, 128)
 	capture = PiRGBArray(camera, size=RESOLUTION)
 	
