@@ -23,7 +23,7 @@ class Socket_Server(threading.Thread):
 	
     def run(self):
         with self.conn:
-            print("Server connection valid.")
+            #print("Server connection valid.")
             while not self.terminated:
                 self.rxdata = self.conn.recv(1024)
                 self.rxdata = self.rxdata.decode('utf-8')
