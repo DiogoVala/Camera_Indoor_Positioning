@@ -96,9 +96,12 @@ def frame_processor(frame):
 			
 			for keypoint_tmp in keypoints_tmp:
 				# Adjust keypoint coordinates according to the crop window position
-				x = keypoint_tmp.pt[0]+pt_x-blob.crop_window
-				y = keypoint_tmp.pt[1]+pt_y-blob.crop_window
+				#x = keypoint_tmp.pt[0]+pt_x-blob.crop_window
+				#y = keypoint_tmp.pt[1]+pt_y-blob.crop_window
+				x = keypoint_tmp.pt[0]
+				y = keypoint_tmp.pt[1]
 				keypoints.append(tuple((x,y)))
+
 				keypoints_sizes.append(cv2.countNonZero(mask_high)) # Number of white pixels
 				
 	
