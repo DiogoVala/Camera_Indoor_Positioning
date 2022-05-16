@@ -46,15 +46,16 @@ class Socket_Client(threading.Thread):
         self.connected = False
         self.connecting_retries = 0
         self.event = threading.Event()
-        self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.txdata=None
         self.start()
     def run(self):
         while True:
             while not self.connected:
                 try:
+                    self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.s.connect((HOST, PORT))
                     self.connected = True
+                    self.terminated = False
                 except:
                     self.connecting_retries += 1
                     print("Connection failed.")
@@ -75,6 +76,7 @@ class Socket_Client(threading.Thread):
                         print("Could not send data to server.")
                         self.s.close()
                         self.terminated = True
+                        self.connected = False
                     finally:
                         self.event.clear()
             try:
