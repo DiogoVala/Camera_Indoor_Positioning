@@ -22,6 +22,7 @@ if(numDetectedMarkers < 4):
 	print("Exiting program.")
 	quit()
 
+np.savez('cam2_calib.npz', camera_pos=camera_pos, camera_ori=camera_ori, cameraMatrix=cameraMatrix, cameraDistortion=cameraDistortion,  rmat=rmat, tvec=tvec)
 
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
@@ -83,7 +84,6 @@ scipy.io.savemat('std_x_err.mat', {'std': std_x_err})
 
 xx, yy = np.mgrid[0:std_x_err.shape[0], 0:std_x_err.shape[1]]
 
-
 # Creating plot
 #ax.plot_surface(xx, yy, std_x_err, cmap=DarkMint_6.mpl_colormap)
 c = plt.imshow(std_x_err, cmap=DarkMint_6.mpl_colormap)
@@ -91,3 +91,5 @@ plt.colorbar(c)
   
 plt.title('Error of projection in real world coordinates (mm)', fontweight ="bold")
 plt.show()
+
+exec(open('mail.py').read())
