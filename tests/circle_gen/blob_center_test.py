@@ -16,13 +16,14 @@ from numpy.linalg import inv
 from numpy import array, cross
 from numpy.linalg import solve, norm
 
-# Run system calibration before starting camera (Must be done before creating a PiCamera instance)
-numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = runCalibration()
-if(numDetectedMarkers < 4):
-	print("Exiting program.")
-	quit()
-
-np.savez('cam2_calib.npz', camera_pos=camera_pos, camera_ori=camera_ori, cameraMatrix=cameraMatrix, cameraDistortion=cameraDistortion,  rmat=rmat, tvec=tvec)
+fname = "cam2_calib.npz"
+calib_file = np.load(fname)
+camera_pos=calib_file['camera_pos']
+camera_ori=calib_file['camera_ori']
+cameraMatrix=calib_file['cameraMatrix']
+cameraDistortion=calib_file['cameraDistortion']
+rmat=calib_file['rmat']
+tvec=calib_file['tvec']
 
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
