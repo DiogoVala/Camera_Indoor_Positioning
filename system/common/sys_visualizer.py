@@ -328,7 +328,7 @@ with picamera.PiCamera() as camera:
 	
 	camera.resolution = RESOLUTION
 	camera.exposure_mode = 'sports'
-	camera.iso = 150
+	camera.iso = 1600
 	#camera.color_effects = (128, 128)
 	capture = PiRGBArray(camera, size=RESOLUTION)
 	

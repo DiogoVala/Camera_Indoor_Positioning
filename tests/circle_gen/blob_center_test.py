@@ -6,6 +6,7 @@ import glob
 import scipy.io
 from palettable.cartocolors.sequential import DarkMint_6
 import matplotlib.pyplot as plt
+import statistics
 
 # Add common modules path
 sys.path.insert(1, '/home/pi/Camera_Indoor_Positioning/system/common')
@@ -16,12 +17,19 @@ from numpy.linalg import inv
 from numpy import array, cross
 from numpy.linalg import solve, norm
 
-fname = "cam2_calib.npz"
+'''
+numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = runCalibration()
+if(numDetectedMarkers < 4):
+	print("Exiting program.")
+	quit()
+
+np.savez('cam1_calib.npz', camera_pos=camera_pos, camera_ori=camera_ori, cameraMatrix=cameraMatrix, rmat=rmat, tvec=tvec)
+'''
+fname = "cam1_calib.npz"
 calib_file = np.load(fname)
 camera_pos=calib_file['camera_pos']
 camera_ori=calib_file['camera_ori']
 cameraMatrix=calib_file['cameraMatrix']
-cameraDistortion=calib_file['cameraDistortion']
 rmat=calib_file['rmat']
 tvec=calib_file['tvec']
 
@@ -57,6 +65,19 @@ camera_width  = 2016
 sigma_x = 0.06
 sigma_y = 0.02
 
+keypoints = []
+fnames = sorted(glob.glob('blobs/*.jpg'))
+for fname in fnames:
+	img = cv2.imread(fname)
+	keypoint = blob.detectBlob_HighRes(img)
+	keypoints.append(keypoint[0].pt)
+	
+sigma_x=statistics.stdev(keypoints[0])
+sigma_y=statistics.stdev(keypoints[1])
+
+print("Sigma_x = %.3f" % (sigma_x))
+print("Sigma_y = %.3f" % (sigma_y))
+
 Ntests = 100
 pixel_step=8
 
@@ -67,9 +88,11 @@ for x in range(0, camera_width, pixel_step):
 	for y in range(0, camera_height, pixel_step):
 		print("Testing for (%d,%d)" % (x, y))
 		proj_err_rw=[]
-		blob_centers_err = np.random.normal(0.0, sigma_x, Ntests).reshape(Ntests,1)
-		blob_centers_err = np.tile([x, y],(Ntests,1))+np.append(blob_centers_err, np.zeros((Ntests,1)), axis = 1)
+		err_x = np.random.normal(0.0, sigma_x, Ntests).reshape(Ntests,1)
+		err_y = np.random.normal(0.0, sigma_y, Ntests).reshape(Ntests,1)
 		blob_centers = np.tile([x, y],(Ntests,1))
+		blob_centers_err = blob_centers+np.append(err_x, err_y, axis = 1)
+		
 
 		for i in range(len(blob_centers)):
 			proj_err_rw_it=abs(getWorldCoordsAtZ(blob_centers[i], 0.0, cameraMatrix, rmat, tvec)-getWorldCoordsAtZ(blob_centers_err[i], 0.0, cameraMatrix, rmat, tvec))
@@ -80,8 +103,8 @@ for x in range(0, camera_width, pixel_step):
 		mean_x_err[y_s, x_s]=np.mean(proj_err_rw)
 		std_x_err[y_s, x_s]=np.std(proj_err_rw)
 
-scipy.io.savemat('mean_x_err.mat', {'mean': mean_x_err})
-scipy.io.savemat('std_x_err.mat', {'std': std_x_err})
+scipy.io.savemat('mean_y_err.mat', {'mean': mean_x_err})
+scipy.io.savemat('std_y_err.mat', {'std': std_x_err})
 
 xx, yy = np.mgrid[0:std_x_err.shape[0], 0:std_x_err.shape[1]]
 

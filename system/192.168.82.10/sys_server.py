@@ -12,6 +12,7 @@ from numpy import array, cross
 from numpy.linalg import solve, norm
 from scipy.spatial.transform import Rotation
 from sys_calibration_bare import *
+import csv
 
 # Add common modules path
 sys.path.insert(1, '/home/pi/Camera_Indoor_Positioning/system/common')
@@ -29,6 +30,7 @@ MinMarkerCount = 0
 this_cam_data=None
 
 blob_id = 0
+
 
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
@@ -116,16 +118,17 @@ def frame_processor(frame):
 		# Get projection coordinates in the real world
 		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
 
-		print(keypoint, keypoint_realWorld)
+		#print(keypoint, keypoint_realWorld)
 
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
 
 	return
 
 # Calculates closest approach of two lines
+prev_time = time.time()
 def intersect(other_cam_data):
 		
-	global this_cam_data
+	global this_cam_data, prev_time
 	'''
 	if other_cam_data is None:
 		print("Client cannot see LED")
@@ -171,6 +174,12 @@ def intersect(other_cam_data):
 	print(f"Target at: (%8.2f, %8.2f, %8.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
 	print(f"Distance between lines at closest approach: %.fmm" % (d) )
 	print("\x1b[5A\r")
+	with open('pos.csv', 'a', newline='') as f:
+		writer = csv.writer(f)
+		row=[(time.time()-prev_time), round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)]
+		writer.writerow(row)
+		
+	prev_time = time.time()
 	#return p,d
 	#print("%.2f, %.2f, %.2f" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
 	
