@@ -3,7 +3,7 @@ import time
 
 camera = PiCamera()
 time.sleep(2)
-camera.resolution = (2016, 1520)
+camera.resolution = (1920, 1080)
 camera.framerate = 30
 
 file_name = "video_" + str(time.time()) + ".h264"
