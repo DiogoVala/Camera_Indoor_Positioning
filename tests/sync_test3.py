@@ -3,9 +3,8 @@ import time
 
 camera = PiCamera()
 time.sleep(2)
-camera.resolution = (1280, 720)
-camera.vflip = True
-camera.contrast = 10
+camera.resolution = (2016, 1520)
+camera.framerate = 30
 
 file_name = "video_" + str(time.time()) + ".h264"
 
