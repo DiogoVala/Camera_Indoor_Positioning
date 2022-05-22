@@ -42,7 +42,7 @@ camera.resolution = camera_resolution
 camera.exposure_mode = 'sports'
 camera.iso 	= 1600
 camera.shutter_speed = 5000
-camera.framerate = 60
+camera.framerate = 15
 time.sleep(1)
 
 # Initialize pool of threads to process each frame
