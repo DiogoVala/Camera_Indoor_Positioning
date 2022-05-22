@@ -27,7 +27,7 @@ def frame_processor(frame):
 	name=str(datetime.datetime.now())+'.jpg'
 	
 	rgb=cv2.cvtColor(frame, cv2.COLOR_YUV2BGR)
-	cv2.imwrite(name, rgb)
+	#cv2.imwrite(name, rgb)
 	
 	return
 
