@@ -34,8 +34,6 @@ while True:
 	frame=capture.array
 	capture.truncate(0)
 	cv2.imshow("frame", frame)
-	key=cv2.waitKey(1)
-	#time.sleep(1)
 	
-	if key == ord('q'):
+	key=cv2.waitKey(1)
 		break
