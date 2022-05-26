@@ -33,6 +33,6 @@ while True:
 	print(stamp)
 	frame=capture.array
 	capture.truncate(0)
-	cv2.imshow("frame", frame)
+	#cv2.imshow("frame", frame)
 	
 	key=cv2.waitKey(1)
