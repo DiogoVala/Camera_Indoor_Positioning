@@ -8,52 +8,34 @@ import math
 import cv2
 import numpy as np
 import sys
-from numpy.linalg import inv
-from numpy import array, cross
-from numpy.linalg import solve, norm
-from scipy.spatial.transform import Rotation
-import csv
+from picamera.array import PiYUVArray
+from picamera.array import PiRGBArray
 
-# Add common modules path
-sys.path.insert(1, '/home/pi/Camera_Indoor_Positioning/system/common')
-
-import image_processor as imgp
 # Camera Settings
-camera_resolution = (2016, 1520)
-
-# Processing pipeline for each frame
-def frame_processor(frame):
-	
-	name=str(datetime.datetime.now())+'.jpg'
-	
-	rgb=cv2.cvtColor(frame, cv2.COLOR_YUV2BGR)
-	#cv2.imwrite(name, rgb)
-	
-	return
-
+camera_resolution = (1280, 720)
 
 ####### MAIN ####### 
 print("Starting server camera.")
-
 
 # Camera startup
 camera = picamera.PiCamera()
 camera.resolution = camera_resolution
 camera.exposure_mode = 'sports'
 camera.iso 	= 1600
-camera.shutter_speed = 5000
+camera.shutter_speed = 10000
 camera.framerate = 15
 time.sleep(1)
+capture = PiRGBArray(camera, size=camera_resolution)
 
-# Initialize pool of threads to process each frame
-imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor, camera, camera_resolution) for i in range(imgp.nProcess)]
-
-print("Starting tracking.\n")
-camera.capture_sequence(imgp.getStream(), use_video_port=True, format='yuv')
-
-while imgp.ImgProcessorPool :
-	with imgp.ImgProcessorLock:
-		processor = imgp.ImgProcessorPool.pop()
-	processor.terminated = True
-	processor.join()
-print("Terminating program.")
+while True:
+	camera.capture(capture, use_video_port=True, format='bgr')
+	stamp = time.time()
+	print(stamp)
+	frame=capture.array
+	capture.truncate(0)
+	cv2.imshow("frame", frame)
+	key=cv2.waitKey(1)
+	#time.sleep(1)
+	
+	if key == ord('q'):
+		break
