@@ -28,6 +28,7 @@ class ImageProcessor(threading.Thread):
 					self.stream.seek(0)
 					frame = self.stream.array
 					if frame is not None:
+						print(time.time())
 						self.processor_fcn(frame) # Call function to process frame
 				finally:
 					self.stream.seek(0)
