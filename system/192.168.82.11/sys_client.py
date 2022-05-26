@@ -107,7 +107,7 @@ def frame_processor(frame):
 		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
 
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-
+		#print(time.time(), this_cam_data)
 	# Send location data to the server
 	socket_clt.txdata=this_cam_data
 	socket_clt.event.set()
