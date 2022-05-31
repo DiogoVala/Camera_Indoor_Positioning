@@ -146,6 +146,13 @@ atexit.register(cameraProcess.terminate) # this closes the camera process in cas
 # Initialize pool of threads to process each frame
 imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
 
+while True:
+	#print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
+	cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
+	processor = imgp.ImgProcessorPool.pop()
+	processor.frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
+	processor.event.set()
+
 cameraProcess.terminate() # stop the camera
 while imgp.ImgProcessorPool :
 	with imgp.ImgProcessorLock:
