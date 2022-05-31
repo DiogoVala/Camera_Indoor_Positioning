@@ -126,7 +126,7 @@ def frame_processor(frame):
 		#print(keypoint, keypoint_realWorld)
 
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-		print(time.time(), this_cam_data)
+		#print(time.time(), this_cam_data)
 
 	return
 
