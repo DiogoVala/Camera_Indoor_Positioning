@@ -1,7 +1,7 @@
 import threading
-from picamera.array import PiYUVArray
 import numpy
 import time
+import cv2
 
 # Thread management
 nProcess = 20 # Number of threads to run
@@ -10,12 +10,12 @@ ImgProcessorDone = False # Global to indicate end of processing (To stop threads
 ImgProcessorPool = []
 
 class ImageProcessor(threading.Thread):
-	def __init__(self, processor_fcn, camera, resolution):
+	def __init__(self, processor_fcn):
 		super(ImageProcessor, self).__init__()
 		self.processor_fcn = processor_fcn
-		self.stream = PiYUVArray(camera, size=resolution)
 		self.event = threading.Event()
 		self.terminated = False
+		self.frame = None
 		self.start()
 
 	def run(self):
@@ -24,30 +24,11 @@ class ImageProcessor(threading.Thread):
 			# Wait for an image to be written to the stream
 			if self.event.wait(1):
 				try:
-					#print(f"\n{threading.current_thread()} at: {datetime.datetime.now()}")
-					self.stream.seek(0)
-					frame = self.stream.array
-					if frame is not None:
-						print(time.time())
-						self.processor_fcn(frame) # Call function to process frame
+					if self.frame is not None:
+						self.frame = cv2.cvtColor(self.frame, cv2.COLOR_YUV420p2RGB)
+						self.frame = cv2.cvtColor(self.frame, cv2.COLOR_RGB2YUV)
+						self.processor_fcn(self.frame) # Call function to process frame
 				finally:
-					self.stream.seek(0)
-					self.stream.truncate()
 					self.event.clear()
-					#with ImgProcessorLock:
 					ImgProcessorPool.append(self)
 
-
-# Generator of buffers for the capture_sequence method.
-# Each buffer belongs to an ImageProcessor so each frame is sent to a different thread.
-def getStream():
-	while not ImgProcessorDone:
-		with ImgProcessorLock:
-			if ImgProcessorPool:
-				processor = ImgProcessorPool.pop()
-				yield processor.stream
-				processor.event.set()
-			else:
-				#time.sleep(0.1)
-				print("ImgProcessorPool empty")
-				#break

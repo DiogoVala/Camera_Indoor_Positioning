@@ -9,9 +9,9 @@ import cv2
 import numpy as np
 import sys
 from picamera.array import PiYUVArray
-from picamera.array import PiRGBArray
 
 # Camera Settings
+camera_resolution = (4056, 3040)
 camera_resolution = (1280, 720)
 
 ####### MAIN ####### 
@@ -20,19 +20,21 @@ print("Starting server camera.")
 # Camera startup
 camera = picamera.PiCamera()
 camera.resolution = camera_resolution
-camera.exposure_mode = 'sports'
-camera.iso 	= 1600
-camera.shutter_speed = 10000
-camera.framerate = 15
+#camera.exposure_mode = 'sports'
+#camera.iso 	= 1600
+#camera.shutter_speed = 10000
+camera.framerate = 30
 time.sleep(1)
-capture = PiRGBArray(camera, size=camera_resolution)
+capture = PiYUVArray(camera, size=camera_resolution)
 
-while True:
-	camera.capture(capture, use_video_port=True, format='bgr')
-	stamp = time.time()
-	print(stamp)
+cnt=0
+start = time.time()
+for frame in camera.capture_continuous(capture, use_video_port=True, format='yuv'):
 	frame=capture.array
 	capture.truncate(0)
-	#cv2.imshow("frame", frame)
-	
-	key=cv2.waitKey(1)
+	if cnt == 50:
+		fps=(time.time()-start)/50
+		print(fps)
+		break
+	cnt+=1
+

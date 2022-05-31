@@ -8,10 +8,6 @@ from scipy.spatial.transform import Rotation
 
 # Camera Settings
 RESOLUTION = (2016, 1520)
-camera = picamera.PiCamera()
-camera.resolution 	 = RESOLUTION
-camera.exposure_mode = 'night'
-camera.iso 			 = 1600
 
 # Camera matrix and cameraDistortion vector
 fname = "camera_intrinsics_%dx%d.npz" % (RESOLUTION[0], RESOLUTION[1])
@@ -86,6 +82,12 @@ def organizeObjpp(markers, ids):
 	return objpp, imgPts
 
 def runCalibration():
+	
+	camera = picamera.PiCamera()
+	camera.resolution 	 = RESOLUTION
+	camera.exposure_mode = 'night'
+	camera.iso 			 = 1600
+	
 	tic = time.perf_counter()
 	
 	camera_pos = None
