@@ -167,11 +167,11 @@ def intersect(other_cam_data):
 	b1=np.array([other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]])
 	_,_,d=closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)	
 
-	#print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]) )
-	#print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]) )
-	#print(f"Target at: (%8.2f, %8.2f, %8.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
-	#print(f"Distance between lines at closest approach: %.fmm" % (d) )
-	#print("\x1b[5A\r")
+	print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]) )
+	print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]) )
+	print(f"Target at: (%8.2f, %8.2f, %8.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
+	print(f"Distance between lines at closest approach: %.fmm" % (d) )
+	print("\x1b[5A\r")
 	'''
 	with open('pos.csv', 'a', newline='') as f:
 		writer = csv.writer(f)

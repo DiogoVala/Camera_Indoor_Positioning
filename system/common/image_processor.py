@@ -26,7 +26,6 @@ class ImageProcessor(threading.Thread):
 				try:
 					if self.frame is not None:
 						self.frame=self.frame.reshape(1520*3//2,2016)
-						print("newframe")
 						frame_rgb = cv2.cvtColor(self.frame, cv2.COLOR_YUV420p2RGB)
 						frame_yuv = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2YUV)
 						self.processor_fcn(frame_yuv) # Call function to process frame
