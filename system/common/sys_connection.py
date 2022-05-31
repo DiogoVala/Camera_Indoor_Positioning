@@ -15,7 +15,14 @@ class Socket_Server(threading.Thread):
         self.terminated = False
         self.event = threading.Event()
         self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.s.bind((HOST, PORT))
+        self.connected = False
+        while not self.connected:
+            try:
+                self.s.bind((HOST, PORT))
+                self.connected = True
+            except:
+                print("Socket address is already in use. Retrying in a few seconds.")
+                time.sleep(5)
         self.rxdata = None
         print("Waiting for client connection.")
         self.s.listen()
