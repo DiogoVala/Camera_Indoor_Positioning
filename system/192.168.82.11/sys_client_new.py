@@ -60,29 +60,29 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 
 # Processing pipeline for each frame
 def frame_processor(frame):
-	global this_cam_data
+	global this_cam_data, blob_id
 
 	keypoints = [] # List of detected keypoints in the frame
 	keypoints_sizes = []
 	keypoint = None # Target LED keypoint
 
 	# Resize high resolution to low resolution
-	frame_low = cv2.resize(frame, (int(RESOLUTION[0]/blob.rescale_factor),int(RESOLUTION[1]/blob.rescale_factor)),interpolation = cv2.INTER_NEAREST)
+	frame_low = cv2.resize(frame, (w//blob.rescale_factor,h//blob.rescale_factor),interpolation = cv2.INTER_NEAREST)
 
 	# Filter low resolution frame by color
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
 
 	# Blob detector
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
-	
+
 	# Get rough LED position from low resolution mask
 	if keypoints_low:
 		pts_rough = [keypoint.pt for keypoint in keypoints_low] # List of keypoint coordinates in low resolution
-		pts_rough = [(int(x)*blob.rescale_factor, int(y)*blob.rescale_factor) for x,y in pts_rough] # Rescale coordinates
-
+		pts_rough = [(round(x,0)*blob.rescale_factor, round(y,0)*blob.rescale_factor) for x,y in pts_rough] # Rescale coordinates
+		
 		for pt in pts_rough:
-			pt_x=int(pt[0])
-			pt_y=int(pt[1])
+			pt_x=int(round(pt[0],0))
+			pt_y=int(round(pt[1],0))
 			# Crop frame around each estimated position
 			yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 			try:

@@ -74,10 +74,7 @@ def frame_processor(frame):
 
 	# Blob detector
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
-	
-	#cv2.imshow("frame", cv2.resize(frame_low, (0,0), fx=0.5, fy=0.5))
-	#cv2.imshow("mask", cv2.resize(mask_low, (0,0), fx=0.5, fy=0.5))
-	#cv2.waitKey(1)
+
 	# Get rough LED position from low resolution mask
 	if keypoints_low:
 		pts_rough = [keypoint.pt for keypoint in keypoints_low] # List of keypoint coordinates in low resolution
@@ -90,11 +87,6 @@ def frame_processor(frame):
 			yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 			try:
 				mask_high = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
-				
-				
-				#path=("%d.jpg" % (blob_id))
-				#cv2.imwrite(path, mask_high)
-				#blob_id+=1
 			except:
 				break
 
