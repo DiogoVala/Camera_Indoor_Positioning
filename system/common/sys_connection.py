@@ -70,7 +70,7 @@ class Socket_Client(threading.Thread):
                 if self.event.wait():
                     try:
                         message=str.encode(str(self.txdata))
-                        #print("Sending:", message)
+                        print("Sending:", message)
                         self.s.send(message)
                     except:
                         print("Could not send data to server.")
