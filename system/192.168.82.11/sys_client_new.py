@@ -28,7 +28,7 @@ w = 2016
 h = 1520
 
 # Minimum number of ArUco markers required for an acceptable initial calibration
-MinMarkerCount = 2
+MinMarkerCount = 0
 
 # LED position data from this camera
 this_cam_data=None
