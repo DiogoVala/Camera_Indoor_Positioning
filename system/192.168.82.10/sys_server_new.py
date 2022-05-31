@@ -302,7 +302,7 @@ def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1
 print("Starting server camera.")
 
 # Initialize Socket Server
-#socket_sv = Socket_Server(intersect)
+socket_sv = Socket_Server(intersect)
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
