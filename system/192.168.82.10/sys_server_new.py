@@ -28,7 +28,7 @@ w = 2016
 h = 1520
 
 # Minimum number of ArUco markers required for an acceptable initial calibration
-MinMarkerCount = 2
+MinMarkerCount = 0
 
 # LED position data from this camera
 this_cam_data=None
@@ -75,22 +75,26 @@ def frame_processor(frame):
 	# Blob detector
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
 	
+	#cv2.imshow("frame", cv2.resize(frame_low, (0,0), fx=0.5, fy=0.5))
+	#cv2.imshow("mask", cv2.resize(mask_low, (0,0), fx=0.5, fy=0.5))
+	#cv2.waitKey(1)
 	# Get rough LED position from low resolution mask
 	if keypoints_low:
 		pts_rough = [keypoint.pt for keypoint in keypoints_low] # List of keypoint coordinates in low resolution
 		pts_rough = [(round(x,0)*blob.rescale_factor, round(y,0)*blob.rescale_factor) for x,y in pts_rough] # Rescale coordinates
-
+		
 		for pt in pts_rough:
 			pt_x=int(round(pt[0],0))
 			pt_y=int(round(pt[1],0))
 			# Crop frame around each estimated position
 			yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
-
 			try:
 				mask_high = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
-				path=("%d.jpg" % (blob_id))
+				
+				
+				#path=("%d.jpg" % (blob_id))
 				#cv2.imwrite(path, mask_high)
-				blob_id+=1
+				#blob_id+=1
 			except:
 				break
 
@@ -122,7 +126,7 @@ def frame_processor(frame):
 		#print(keypoint, keypoint_realWorld)
 
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-		#print(time.time(), this_cam_data)
+		print(time.time(), this_cam_data)
 
 	return
 
@@ -298,7 +302,7 @@ def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1
 print("Starting server camera.")
 
 # Initialize Socket Server
-socket_sv = Socket_Server(intersect)
+#socket_sv = Socket_Server(intersect)
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
@@ -309,7 +313,7 @@ if(numDetectedMarkers < MinMarkerCount):
 
 print("Starting tracking.\n")
 
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate 250 --nopreview -ex night"
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate 10 --nopreview -ex sports -ISO 150"
 videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
 
 # Start raspividyuv subprocess to capture frames
@@ -320,10 +324,10 @@ atexit.register(cameraProcess.terminate) # this closes the camera process in cas
 imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
 
 while True:
-	print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
+	#print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
 	cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
 	processor = imgp.ImgProcessorPool.pop()
-	processor.frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8).reshape(h*3//2,w)
+	processor.frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
 	processor.event.set()
 
 cameraProcess.terminate() # stop the camera
