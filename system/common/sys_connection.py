@@ -45,8 +45,11 @@ class Socket_Server(threading.Thread):
                     self.terminated = True
                 else:
                     #print("Received:", eval(self.rxdata))
-                    self.rxdata = eval(self.rxdata)
-                    heapq.heappush(self.dataQ, self.rxdata)
+                    try:
+                        self.rxdata = eval(self.rxdata)
+                        heapq.heappush(self.dataQ, self.rxdata)
+                    except:
+                        pass
                     #self.output_fcn(self.rxdata)
                     self.event.set() # Set event signal on data acquisition
             self.s.close()

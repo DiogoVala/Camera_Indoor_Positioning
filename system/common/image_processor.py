@@ -3,7 +3,7 @@ import cv2
 import time
 import numpy as np
 # Thread management
-nProcess = 10 # Number of threads to run
+nProcess = 20 # Number of threads to run
 ImgProcessorPool = []
 
 class ImageProcessor(threading.Thread):
