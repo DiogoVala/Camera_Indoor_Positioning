@@ -59,7 +59,7 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 	return wcPoint
 
 # Processing pipeline for each frame
-def frame_processor(frame):
+def frame_processor(frameID, frame):
 	global this_cam_data, blob_id
 
 	keypoints = [] # List of detected keypoints in the frame
@@ -71,8 +71,6 @@ def frame_processor(frame):
 
 	# Filter low resolution frame by color
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
-	cv2.imshow("frame", frame_low)
-	cv2.waitKey(1)
 
 	# Blob detector
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
@@ -117,7 +115,7 @@ def frame_processor(frame):
 		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
 
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-		print(time.time(), this_cam_data)
+		
 	# Send location data to the server
 	socket_clt.txdata=(frameID,this_cam_data)
 	socket_clt.event.set()
@@ -128,7 +126,7 @@ def frame_processor(frame):
 print("Starting client camera.")
 
 # Initialize Socket Server
-#socket_clt = Socket_Client()
+socket_clt = Socket_Client()
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
@@ -136,7 +134,7 @@ if(numDetectedMarkers < MinMarkerCount):
 	print("Exiting program.")
 	quit()
 
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate 10 --nopreview -ex sports --ISO 150"
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate 5 --nopreview -ex sports --ISO 150"
 videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
 
 print("Starting capture.")
