@@ -1,7 +1,6 @@
 import io
 import time
 import threading
-#import picamera
 import datetime
 import math
 import cv2
@@ -11,10 +10,11 @@ from numpy.linalg import inv
 from numpy import array, cross
 from numpy.linalg import solve, norm
 from scipy.spatial.transform import Rotation
-
-import csv
 import subprocess as sp
 import atexit
+import heapq
+import os
+os.nice(10)
 
 # Add common modules path
 sys.path.insert(1, '/home/pi/Camera_Indoor_Positioning/system/common')
@@ -32,6 +32,13 @@ MinMarkerCount = 0
 
 # LED position data from this camera
 this_cam_data=None
+
+sv_DataQ = list([])
+cl_DataQ = list([])
+heapqEvent = threading.Event()
+heapq.heapify(sv_DataQ)
+heapq.heapify(cl_DataQ)
+frameID = 0
 
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
@@ -59,7 +66,7 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 	return wcPoint
 
 # Processing pipeline for each frame
-def frame_processor(frame):
+def frame_processor(frameID, frame):
 	global this_cam_data, blob_id
 
 	keypoints = [] # List of detected keypoints in the frame
@@ -71,6 +78,8 @@ def frame_processor(frame):
 
 	# Filter low resolution frame by color
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
+	cv2.imshow("frame", mask_low)
+	cv2.waitKey(1)
 
 	# Blob detector
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
@@ -101,7 +110,6 @@ def frame_processor(frame):
 
 				keypoints_sizes.append(cv2.countNonZero(mask_high)) # Number of white pixels
 				
-	
 	if keypoints:
 		# Select the largest blob
 		keypoint = keypoints[np.argmin(keypoints_sizes)] # Argmin because we have the number of empty pixels 
@@ -114,11 +122,11 @@ def frame_processor(frame):
 		
 		# Get projection coordinates in the real world
 		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
-
-		#print(keypoint, keypoint_realWorld)
-
+		
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-		#print(time.time(), this_cam_data)
+		
+		heapq.heappush(sv_DataQ,(frameID ,this_cam_data))
+		heapqEvent.set()
 
 	return
 
@@ -294,7 +302,9 @@ def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1
 print("Starting server camera.")
 
 # Initialize Socket Server
-socket_sv = Socket_Server(intersect)
+#socket_sv = Socket_Server(intersect, cl_DataQ)
+
+time.sleep(0.2)
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
@@ -302,10 +312,9 @@ if(numDetectedMarkers < MinMarkerCount):
 	print("Exiting program.")
 	quit()
 
-
 print("Starting tracking.\n")
 
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate 10 --nopreview -ex sports -ISO 150"
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate 5 --nopreview -ex sports -ISO 150"
 videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
 
 # Start raspividyuv subprocess to capture frames
@@ -313,14 +322,42 @@ cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE, bufsize=1)
 atexit.register(cameraProcess.terminate) # this closes the camera process in case the python scripts exits unexpectedly
 
 # Initialize pool of threads to process each frame
-imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
+imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor, w, h) for i in range(imgp.nProcess)]
 
+def test():
+	threading.Timer(1/5, test).start()
+	try:
+		pass
+		sv_data=heapq.heappop(sv_DataQ)
+		#cl_data=heapq.heappop(cl_DataQ)
+		
+		print("time dif", sv_data[0])
+		
+	except:
+		print("empty")
+		pass
+	finally:
+		heapqEvent.clear()
+		
+new_thread = threading.Thread(target=test)
+new_thread.start()
+
+time.sleep(0.2) # Give the client some time to reach this point
+cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
+start=time.time()
 while True:
 	#print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
-	cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
-	processor = imgp.ImgProcessorPool.pop()
-	processor.frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
-	processor.event.set()
+	frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
+	#print((frameID+1)/(time.time()-start))
+	if frame is not None:
+		frameID=time.time()
+		processor = imgp.ImgProcessorPool.pop()
+		processor.frameID = frameID
+		processor.frame = frame
+		processor.event.set()
+	
+
+print(fps.fps())
 
 cameraProcess.terminate() # stop the camera
 while imgp.ImgProcessorPool :

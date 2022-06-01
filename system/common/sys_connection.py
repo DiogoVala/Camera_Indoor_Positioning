@@ -1,6 +1,8 @@
 import socket
 import threading
 import time
+import atexit
+import heapq
 
 HOST = "192.168.82.10"   # Standard loopback interface address (localhost)
 PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
@@ -8,9 +10,10 @@ PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 Socket_Con_Retries = -1 # Infinite retries
 
 class Socket_Server(threading.Thread):
-    def __init__(self, output_fcn):
+    def __init__(self, output_fcn, dataQ):
         super(Socket_Server, self).__init__()
         self.output_fcn = output_fcn
+        self.dataQ = dataQ
         print("Initiating socket server.")
         self.terminated = False
         self.event = threading.Event()
@@ -23,6 +26,7 @@ class Socket_Server(threading.Thread):
             except:
                 print("Socket address is already in use. Retrying in a few seconds.")
                 time.sleep(5)
+        atexit.register(self.s.close)
         self.rxdata = None
         print("Waiting for client connection.")
         self.s.listen()
@@ -42,7 +46,8 @@ class Socket_Server(threading.Thread):
                 else:
                     #print("Received:", eval(self.rxdata))
                     self.rxdata = eval(self.rxdata)
-                    self.output_fcn(self.rxdata)
+                    heapq.heappush(self.dataQ, self.rxdata)
+                    #self.output_fcn(self.rxdata)
                     self.event.set() # Set event signal on data acquisition
             self.s.close()
 	    
