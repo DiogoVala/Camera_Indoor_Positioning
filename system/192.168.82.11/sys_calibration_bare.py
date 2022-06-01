@@ -99,6 +99,9 @@ def runCalibration():
 	frame = capture.array
 	capture.truncate(0)
 	
+	#cv2.imshow("Calibration", frame)
+	#cv2.waitKey(5000)
+	
 	# ArUco detection is faster in grayscale
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
