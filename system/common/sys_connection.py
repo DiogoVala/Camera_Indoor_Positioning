@@ -14,35 +14,37 @@ class Socket_Server(threading.Thread):
         super(Socket_Server, self).__init__()
         self.output_fcn = output_fcn
         self.dataQ = dataQ
-        print("Initiating socket server.")
-        self.terminated = False
         self.event = threading.Event()
-        self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connected = False
-        while not self.connected:
-            try:
-                self.s.bind((HOST, PORT))
-                self.connected = True
-            except:
-                print("Socket address is already in use. Retrying in a few seconds.")
-                time.sleep(5)
-        atexit.register(self.s.close)
-        self.rxdata = None
-        print("Waiting for client connection.")
-        self.s.listen()
-        self.conn, self.addr = self.s.accept()
-        print(f"Connected by client {self.addr}")
         self.start()
+        while not self.connected:
+            pass
 	
     def run(self):
-        with self.conn:
-            #print("Server connection valid.")
-            while not self.terminated:
+        while True:
+            while not self.connected:
+                try:
+                    print("Initiating socket server.")
+                    self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.s.bind((HOST, PORT))
+                    self.rxdata = None
+                    print("Waiting for client connection.")
+                    self.s.listen()
+                    self.conn, self.addr = self.s.accept()
+                    print(f"Connected by client {self.addr}")
+                    self.connected = True
+                    atexit.register(self.s.close)
+                except:
+                    print("Socket address is already in use. Retrying in a few seconds.")
+                    time.sleep(5)
+                
+            
+            while self.connected:
                 self.rxdata = self.conn.recv(1024)
                 self.rxdata = self.rxdata.decode('utf-8')
                 if not self.rxdata:
                     print("Terminating socket server")
-                    self.terminated = True
+                    self.connected = False
                 else:
                     #print("Received:", eval(self.rxdata))
                     try:
@@ -53,7 +55,8 @@ class Socket_Server(threading.Thread):
                     #self.output_fcn(self.rxdata)
                     self.event.set() # Set event signal on data acquisition
             self.s.close()
-	    
+            
+        
 class Socket_Client(threading.Thread):
     def __init__(self):
         super(Socket_Client, self).__init__()

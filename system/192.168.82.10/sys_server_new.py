@@ -68,7 +68,7 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 # Processing pipeline for each frame
 def frame_processor(frameID, frame):
 	global this_cam_data, blob_id
-
+	'''
 	keypoints = [] # List of detected keypoints in the frame
 	keypoints_sizes = []
 	keypoint = None # Target LED keypoint
@@ -122,9 +122,9 @@ def frame_processor(frameID, frame):
 		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
 		
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-		
-		heapq.heappush(sv_DataQ,(frameID ,this_cam_data))
-		heapqEvent.set()
+	'''
+	heapq.heappush(sv_DataQ,(frameID ,this_cam_data))
+	heapqEvent.set()
 
 	return
 
@@ -324,32 +324,39 @@ imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor, w, h) for i in ran
 
 def test():
 	threading.Timer(1/5, test).start()
-	
 	try:
-		pass
 		sv_data=heapq.heappop(sv_DataQ)
 		cl_data=heapq.heappop(cl_DataQ)
-		
+			
 		timedif=sv_data[0]-cl_data[0]
-		delay=int(timedif*5)
-		if(delay>0):
-			print("higher")
-			for i in range(delay):
-				try:
-					cl_data=heapq.heappop(cl_DataQ)
-				except:
-					pass
-					
-		if(delay<0):
-			print("lower")
-			for i in range(abs(delay)):
-				try:
-					sv_data=heapq.heappop(sv_DataQ)
-				except:
-					pass
-		print("time dif", sv_data[0]-cl_data[0])
-		
+		print(timedif)
+		'''
+		try:
+			pass
+			sv_data=heapq.heappop(sv_DataQ)
+			cl_data=heapq.heappop(cl_DataQ)
+			
+			timedif=sv_data[0]-cl_data[0]
+			delay=int(timedif*5)
+			if(delay>0):
+				print("higher")
+				for i in range(delay):
+					try:
+						cl_data=heapq.heappop(cl_DataQ)
+					except:
+						pass
+						
+			if(delay<0):
+				print("lower")
+				for i in range(abs(delay)):
+					try:
+						sv_data=heapq.heappop(sv_DataQ)
+					except:
+						pass
+			print("time dif", sv_data[0]-cl_data[0])
+		'''	
 	except Exception as e: 
+		pass
 		print(e)
 	finally:
 		heapqEvent.clear()
