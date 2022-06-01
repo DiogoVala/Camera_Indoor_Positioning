@@ -61,7 +61,7 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 # Processing pipeline for each frame
 def frame_processor(frameID, frame):
 	global this_cam_data, blob_id
-
+	'''
 	keypoints = [] # List of detected keypoints in the frame
 	keypoints_sizes = []
 	keypoint = None # Target LED keypoint
@@ -115,10 +115,10 @@ def frame_processor(frameID, frame):
 		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
 
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-			
-		# Send location data to the server
-		socket_clt.txdata=(frameID,this_cam_data)
-		socket_clt.event.set()
+	'''	
+	# Send location data to the server
+	socket_clt.txdata=(frameID,this_cam_data)
+	socket_clt.event.set()
 
 	return
 
