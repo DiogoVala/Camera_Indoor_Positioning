@@ -78,8 +78,6 @@ def frame_processor(frameID, frame):
 
 	# Filter low resolution frame by color
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
-	cv2.imshow("frame", mask_low)
-	cv2.waitKey(1)
 
 	# Blob detector
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
@@ -302,7 +300,7 @@ def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1
 print("Starting server camera.")
 
 # Initialize Socket Server
-#socket_sv = Socket_Server(intersect, cl_DataQ)
+socket_sv = Socket_Server(intersect, cl_DataQ)
 
 time.sleep(0.2)
 
@@ -329,12 +327,12 @@ def test():
 	try:
 		pass
 		sv_data=heapq.heappop(sv_DataQ)
-		#cl_data=heapq.heappop(cl_DataQ)
+		cl_data=heapq.heappop(cl_DataQ)
 		
-		print("time dif", sv_data[0])
+		print("time dif", sv_data[0]-cl_data[0])
 		
 	except:
-		print("empty")
+		#print("empty")
 		pass
 	finally:
 		heapqEvent.clear()
@@ -342,7 +340,7 @@ def test():
 new_thread = threading.Thread(target=test)
 new_thread.start()
 
-time.sleep(0.2) # Give the client some time to reach this point
+time.sleep(0.1) # Give the client some time to reach this point
 cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
 start=time.time()
 while True:
