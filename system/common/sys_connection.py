@@ -34,7 +34,7 @@ class Socket_Server(threading.Thread):
                         self.conn, self.addr = self.s.accept()
                         print(f"Connected by client {self.addr}")
                         self.connected = True
-                        atexit.register(self.s.close)
+                        atexit.register(self.clean)
                     except:
                         print("Socket address is already in use. Retrying in a few seconds.")
                         time.sleep(5)
