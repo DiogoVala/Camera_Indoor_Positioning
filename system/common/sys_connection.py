@@ -21,39 +21,41 @@ class Socket_Server(threading.Thread):
             pass
 	
     def run(self):
-        while True:
-            while not self.connected:
-                try:
-                    print("Initiating socket server.")
-                    self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    self.s.bind((HOST, PORT))
-                    self.rxdata = None
-                    print("Waiting for client connection.")
-                    self.s.listen()
-                    self.conn, self.addr = self.s.accept()
-                    print(f"Connected by client {self.addr}")
-                    self.connected = True
-                    atexit.register(self.s.close)
-                except:
-                    print("Socket address is already in use. Retrying in a few seconds.")
-                    time.sleep(5)
-                
-            
-            while self.connected:
-                self.rxdata = self.conn.recv(1024)
-                self.rxdata = self.rxdata.decode('utf-8')
-                if not self.rxdata:
-                    print("Terminating socket server")
-                    self.connected = False
-                else:
-                    #print("Received:", eval(self.rxdata))
+        try:    
+            while True:
+                while not self.connected:
                     try:
-                        self.rxdata = eval(self.rxdata)
-                        heapq.heappush(self.dataQ, self.rxdata)
+                        print("Initiating socket server.")
+                        self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        self.s.bind((HOST, PORT))
+                        self.rxdata = None
+                        print("Waiting for client connection.")
+                        self.s.listen()
+                        self.conn, self.addr = self.s.accept()
+                        print(f"Connected by client {self.addr}")
+                        self.connected = True
+                        atexit.register(self.s.close)
                     except:
-                        pass
-                    #self.output_fcn(self.rxdata)
-                    self.event.set() # Set event signal on data acquisition
+                        print("Socket address is already in use. Retrying in a few seconds.")
+                        time.sleep(5)
+                    
+                
+                while self.connected:
+                    self.rxdata = self.conn.recv(1024)
+                    self.rxdata = self.rxdata.decode('utf-8')
+                    if not self.rxdata:
+                        print("Terminating socket server")
+                        self.connected = False
+                    else:
+                        #print("Received:", eval(self.rxdata))
+                        try:
+                            self.rxdata = eval(self.rxdata)
+                            heapq.heappush(self.dataQ, self.rxdata)
+                        except:
+                            pass
+                        #self.output_fcn(self.rxdata)
+                        self.event.set() # Set event signal on data acquisition
+        except:   
             self.s.close()
             
         
