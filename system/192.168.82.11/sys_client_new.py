@@ -119,13 +119,8 @@ def frame_processor(frame):
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
 		print(time.time(), this_cam_data)
 	# Send location data to the server
-<<<<<<< HEAD
-	#socket_clt.txdata=this_cam_data
-	#socket_clt.event.set()
-=======
 	socket_clt.txdata=(frameID,this_cam_data)
 	socket_clt.event.set()
->>>>>>> cd8bbf2ab5f81b22fd1b734a816b5c840d6a31b5
 
 	return
 
