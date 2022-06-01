@@ -55,6 +55,9 @@ class Socket_Server(threading.Thread):
                     #self.output_fcn(self.rxdata)
                     self.event.set() # Set event signal on data acquisition
             self.s.close()
+    def clean(self):
+        self.s.send("\0")
+        self.s.close()
             
         
 class Socket_Client(threading.Thread):
