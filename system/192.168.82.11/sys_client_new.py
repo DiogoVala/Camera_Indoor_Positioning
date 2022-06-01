@@ -119,8 +119,13 @@ def frame_processor(frame):
 		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
 		print(time.time(), this_cam_data)
 	# Send location data to the server
+<<<<<<< HEAD
 	#socket_clt.txdata=this_cam_data
 	#socket_clt.event.set()
+=======
+	socket_clt.txdata=(frameID,this_cam_data)
+	socket_clt.event.set()
+>>>>>>> cd8bbf2ab5f81b22fd1b734a816b5c840d6a31b5
 
 	return
 
@@ -148,12 +153,16 @@ atexit.register(cameraProcess.terminate) # this closes the camera process in cas
 # Initialize pool of threads to process each frame
 imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
 
+cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
 while True:
 	#print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
-	cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
-	processor = imgp.ImgProcessorPool.pop()
-	processor.frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
-	processor.event.set()
+	frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
+	if frame is not None:
+		frameID=time.time()
+		processor = imgp.ImgProcessorPool.pop()
+		processor.frameID = frameID
+		processor.frame = frame
+		processor.event.set()
 
 cameraProcess.terminate() # stop the camera
 while imgp.ImgProcessorPool :

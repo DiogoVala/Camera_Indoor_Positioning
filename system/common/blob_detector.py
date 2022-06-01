@@ -6,7 +6,7 @@ lower_range = np.array([  0,  0, 76])
 upper_range = np.array([203,255,173])
 
 rescale_factor=4
-crop_window = 100
+crop_window = 60
 
 # Blob detector (High Resolution)
 params = cv2.SimpleBlobDetector_Params()
