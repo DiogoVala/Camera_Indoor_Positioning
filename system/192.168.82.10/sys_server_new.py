@@ -324,23 +324,41 @@ imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor, w, h) for i in ran
 
 def test():
 	threading.Timer(1/5, test).start()
+	
 	try:
 		pass
 		sv_data=heapq.heappop(sv_DataQ)
 		cl_data=heapq.heappop(cl_DataQ)
 		
+		timedif=sv_data[0]-cl_data[0]
+		delay=int(timedif*5)
+		if(delay>0):
+			print("higher")
+			for i in range(delay):
+				try:
+					cl_data=heapq.heappop(cl_DataQ)
+				except:
+					pass
+					
+		if(delay<0):
+			print("lower")
+			for i in range(abs(delay)):
+				try:
+					sv_data=heapq.heappop(sv_DataQ)
+				except:
+					pass
 		print("time dif", sv_data[0]-cl_data[0])
 		
-	except:
-		#print("empty")
-		pass
+	except Exception as e: 
+		print(e)
 	finally:
 		heapqEvent.clear()
+	
 		
 new_thread = threading.Thread(target=test)
 new_thread.start()
 
-time.sleep(0.1) # Give the client some time to reach this point
+time.sleep(0.3) # Give the client some time to reach this point
 cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
 start=time.time()
 while True:
