@@ -323,7 +323,7 @@ atexit.register(cameraProcess.terminate) # this closes the camera process in cas
 imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor, w, h) for i in range(imgp.nProcess)]
 
 def test():
-	threading.Timer(1/10, test).start()
+	threading.Timer(1/5, test).start()
 	try:
 		sv_data=heapq.heappop(sv_DataQ)
 		cl_data=heapq.heappop(cl_DataQ)
@@ -356,6 +356,7 @@ def test():
 			print("time dif", sv_data[0]-cl_data[0])
 		'''	
 	except Exception as e: 
+		pass
 		print(e)
 	finally:
 		heapqEvent.clear()
