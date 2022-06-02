@@ -3,7 +3,6 @@
 import socket
 import threading
 import time
-import atexit
 import heapq
 
 HOST = "192.168.82.10"   # Standard loopback interface address (localhost)
@@ -36,7 +35,6 @@ class Socket_Server(threading.Thread):
                     self.conn, self.addr = self.s.accept()
                     print(f"Connected by client {self.addr}")
                     self.connected = True
-                    atexit.register(self.clean)
                 except Exception as e:
                     print(e)
                     time.sleep(5)

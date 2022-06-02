@@ -250,7 +250,7 @@ cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE, bufsize=1)
 atexit.register(cameraProcess.terminate) # this closes the camera process in case the python scripts exits unexpectedly
 
 # Initialize pool of threads to process each frame
-imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor, w, h) for i in range(imgp.nProcess)]
+imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
 
 def test():
 	threading.Timer(1/fps, test).start()
