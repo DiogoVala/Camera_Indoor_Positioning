@@ -254,6 +254,9 @@ imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(img
 
 def test():
 	threading.Timer(1/fps, test).start()
+	
+	global sv_DataQ, cl_DataQ
+	
 	try:
 		svData=heapq.heappop(sv_DataQ)
 		clData=heapq.heappop(cl_DataQ)

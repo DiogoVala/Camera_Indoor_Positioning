@@ -43,7 +43,6 @@ class Socket_Server(threading.Thread):
             while self.connected:
                 self.rxdata = self.conn.recv(1024)
                 self.rxdata = self.rxdata.decode('utf-8')
-                print("here")
                 if not self.rxdata:
                     print("Terminating socket server")
                     self.connected = False
