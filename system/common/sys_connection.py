@@ -83,10 +83,10 @@ class Socket_Client(threading.Thread):
                     time.sleep(1)
             
             while self.connected:
-                self.event.wait(timeout=None)
+                self.event.wait()
                 try:
                     message = str.encode(str(self.txdata))
-                    #print("Sending:", message)
+                    print("Sending:", message)
                     self.s.send(message)
                 except Exception as e:
                     print(e)
