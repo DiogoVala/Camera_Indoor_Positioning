@@ -70,7 +70,6 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 
 # Processing pipeline for each frame
 def frame_processor(frameID, frame):
-
 	frame = frame.reshape(h*3//2,w) # Reshape frame into planar YUV420
 	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2RGB) # Convert to RGB
 	frame = cv2.cvtColor(frame, cv2.COLOR_RGB2YUV) # Convert back to YUV
