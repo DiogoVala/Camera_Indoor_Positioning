@@ -33,12 +33,14 @@ MinMarkerCount = 0
 # LED position data from this camera
 this_cam_data=None
 
+# Piority queues to store calculated data
 sv_DataQ = list([])
 cl_DataQ = list([])
-heapqEvent = threading.Event()
 heapq.heapify(sv_DataQ)
 heapq.heapify(cl_DataQ)
-frameID = 0
+
+# Maximum time difference between data (Data with higher difference is discarded)
+timing_threshhold = 0.1
 
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
@@ -68,7 +70,7 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 # Processing pipeline for each frame
 def frame_processor(frameID, frame):
 	global this_cam_data, blob_id
-	'''
+	
 	keypoints = [] # List of detected keypoints in the frame
 	keypoints_sizes = []
 	keypoint = None # Target LED keypoint
@@ -119,29 +121,24 @@ def frame_processor(frameID, frame):
 		keypoint = keypoint[0][0]
 		
 		# Get projection coordinates in the real world
-		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
+		#keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0, cameraMatrix, rmat, tvec).tolist()
 		
-		this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-	'''
+		#this_cam_data=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
+	
 	heapq.heappush(sv_DataQ,(frameID ,this_cam_data))
-	heapqEvent.set()
-
 	return
 
 # Calculates closest approach of two lines
 prev_time = time.time()
-def intersect(other_cam_data):
+def intersect(svData, clData):
 		
-	global this_cam_data, prev_time
-	'''
-	if other_cam_data is None:
-		print("Client cannot see LED")
-	if this_cam_data is None:
-		print("Server cannot see LED")
-	'''
 	try:
-		P0=np.array([[this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]], [other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]]])
-		P1=np.array([[this_cam_data[0][0], this_cam_data[0][1], 0.0], [other_cam_data[0][0], other_cam_data[0][1], 0.0]])
+		svCamPos = [svData[1][0], svData[1][1], svData[1][2]]
+		svProj = [svData[0][0], svData[0][1], 0.0]
+		clCamPos = [clData[1][0], clData[1][1], clData[1][2]]
+		clProj = [clData[0][0], clData[0][1], 0.0]
+		P0 = np.array([svCamPos, clCamPos])
+		P1 = np.array([svProj,   clProj])
 	except:
 		return
 		
@@ -166,13 +163,16 @@ def intersect(other_cam_data):
 	solution = np.linalg.lstsq(R,q,rcond=None)
 	p = solution[0]
 	
-	a0=np.array([this_cam_data[0][0], this_cam_data[0][1], 0.0])
-	a1=np.array([this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]])
-	
-	b0=np.array([other_cam_data[0][0], other_cam_data[0][1], 0.0])
-	b1=np.array([other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]])
-	_,_,d=closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)	
-
+	try:
+		a0=np.array(svProj)
+		a1=np.array(svCamPos)
+		
+		b0=np.array(clProj)
+		b1=np.array(clCamData)
+		_,_,d=closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False)	
+	except:
+		d=-1
+		
 	print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]) )
 	print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]) )
 	print(f"Target at: (%8.2f, %8.2f, %8.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
@@ -183,14 +183,7 @@ def intersect(other_cam_data):
 		writer = csv.writer(f)
 		row=[(time.time()-prev_time), round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)]
 		writer.writerow(row)
-	'''	
-	prev_time = time.time()
-	#return p,d
-	#print("%.2f, %.2f, %.2f" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
-	#print(this_cam_data)
-	
-	#this_cam_data = None
-	
+	'''
 	return None
 
 def closestDistanceBetweenLines(a0,a1,b0,b1,clampAll=False,clampA0=False,clampA1=False,clampB0=False,clampB1=False):
@@ -325,41 +318,19 @@ imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor, w, h) for i in ran
 def test():
 	threading.Timer(1/5, test).start()
 	try:
-		sv_data=heapq.heappop(sv_DataQ)
-		cl_data=heapq.heappop(cl_DataQ)
+		svData=heapq.heappop(sv_DataQ)
+		clData=heapq.heappop(cl_DataQ)
 			
-		timedif=sv_data[0]-cl_data[0]
-		print(timedif)
-		'''
-		try:
-			pass
-			sv_data=heapq.heappop(sv_DataQ)
-			cl_data=heapq.heappop(cl_DataQ)
-			
-			timedif=sv_data[0]-cl_data[0]
-			delay=int(timedif*5)
-			if(delay>0):
-				print("higher")
-				for i in range(delay):
-					try:
-						cl_data=heapq.heappop(cl_DataQ)
-					except:
-						pass
-						
-			if(delay<0):
-				print("lower")
-				for i in range(abs(delay)):
-					try:
-						sv_data=heapq.heappop(sv_DataQ)
-					except:
-						pass
-			print("time dif", sv_data[0]-cl_data[0])
-		'''	
+		timedif=svData[0]-clData[0]
+		
+		if(abs(timedif) < timing_threshhold):
+			print(timedif)
+			intersect(svData, clData)
+
 	except Exception as e: 
-		pass
+		sv_DataQ = list([])
+		cl_DataQ = list([])	
 		print(e)
-	finally:
-		heapqEvent.clear()
 	
 		
 new_thread = threading.Thread(target=test)
@@ -378,10 +349,9 @@ while True:
 		processor.frameID = frameID
 		processor.frame = frame
 		processor.event.set()
+	else:
+		break
 	
-
-print(fps.fps())
-
 cameraProcess.terminate() # stop the camera
 while imgp.ImgProcessorPool :
 	with imgp.ImgProcessorLock:

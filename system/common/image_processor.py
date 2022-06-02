@@ -31,8 +31,8 @@ class ImageProcessor(threading.Thread):
 					frame_yuv = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2YUV)
 				
 					self.processor_fcn(self.frameID, frame_yuv) # Call function to process frame
-			except:
-				print("error")
+			except Exception as e:
+				print(e)
 			finally:
 				self.event.clear()
 				ImgProcessorPool.append(self)
