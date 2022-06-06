@@ -26,6 +26,7 @@ import sys_calibration_bare as cal
 # Camera Settings
 w = 2016
 h = 1520
+fps = 5
 
 # Minimum number of ArUco markers required for an acceptable initial calibration
 MinMarkerCount = 0
@@ -139,12 +140,9 @@ if(numDetectedMarkers < MinMarkerCount):
 	print("Exiting program.")
 	quit()
 
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate 5 --nopreview -ex sports --ISO 150"
-videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
-
-print("Starting capture.")
-
 # Start raspividyuv subprocess to capture frames
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 150"
+videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
 cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE, bufsize=1)
 atexit.register(cameraProcess.terminate) # this closes the camera process in case the python scripts exits unexpectedly
 
