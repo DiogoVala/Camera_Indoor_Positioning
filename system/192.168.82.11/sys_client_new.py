@@ -90,16 +90,18 @@ def frame_processor(frameID, frame):
 			pt_x=int(round(pt[0],0))
 			pt_y=int(round(pt[1],0))
 
+			keypoints_tmp=[]
 			# Crop frame around each estimated position
 			try: # Cropping near the edges of the frame was not tested
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
+				
+				# Blob detector using high resolution parameters to get accurate keypoints for each window
+				keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
 			except Exception as e:
-				print(e)
+				#print(e)
 				break
-
-			# Blob detector using high resolution parameters to get accurate keypoints for each window
-			keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
+			print(keypoints_tmp)
 			
 			for keypoint_tmp in keypoints_tmp:
 				# Adjust keypoint coordinates according to the crop window's position within the frame
