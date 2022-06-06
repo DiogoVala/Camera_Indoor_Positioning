@@ -13,21 +13,21 @@ import time
 import atexit
 
 frames = [] # stores the video sequence for the demo
-max_frames = 100
+max_frames = 100000
 
 N_frames = 0
 
 # Video capture parameters
-(w,h) = (2016, 1520)
+(w,h) = (640, 480)
 bytesPerFrame = w * h
-fps = 250 # setting to 250 will request the maximum framerate possible
+fps = 5 # setting to 250 will request the maximum framerate possible
 
 # "raspividyuv" is the command that provides camera frames in YUV format
 #  "--output -" specifies stdout as the output
 #  "--timeout 0" specifies continuous video
 #  "--luma" discards chroma channels, only luminance is sent through the pipeline
 # see "raspividyuv --help" for more information on the parameters
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex night"
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports"
 videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
 
 #cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE) # start the camera
@@ -56,7 +56,7 @@ while True:
     #frame1.shape = (h,w) # set the correct dimensions for the numpy array
     #rgb = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV2RGB);
     
-    #cv2.imshow("rgb", frame_rgb)
+    cv2.imshow("rgb", cv2.resize(frame_rgb, (0,0), fx=0.5, fy=0.5))
     
     key=cv2.waitKey(1) # request maximum refresh rate
     if key == ord('q'):

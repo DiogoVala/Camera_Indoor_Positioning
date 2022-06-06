@@ -251,8 +251,8 @@ atexit.register(cameraProcess.terminate) # this closes the camera process in cas
 # Initialize pool of threads to process each frame
 imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
 
-def test():
-	threading.Timer(1/fps, test).start()
+def DataHandler():
+	threading.Timer(1/fps, DataHandler).start()
 	
 	global sv_DataQ, cl_DataQ
 	
@@ -261,15 +261,24 @@ def test():
 		clData=heapq.heappop(cl_DataQ)
 			
 		timedif=svData[0]-clData[0]
-		
+		print("e",timedif)
 		if(abs(timedif) < timing_threshhold):
 			print(timedif)
-			intersect(svData, clData)
+		elif timedif > 0:
+			try:
+				clData=heapq.heappop(cl_DataQ)
+			except:
+				pass
+		else:
+			try:
+				svData=heapq.heappop(sv_DataQ)
+			except:
+				pass
+			#intersect(svData, clData)
 
 	except Exception as e: 
-		sv_DataQ = list([])
-		cl_DataQ = list([])	
-		print(e)
+		pass
+		#print(e)
 	
 		
 new_thread = threading.Thread(target=test)

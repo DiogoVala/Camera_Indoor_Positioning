@@ -39,7 +39,6 @@ class Socket_Server(threading.Thread):
                     print(e)
                     time.sleep(5)
                 
-            
             while self.connected:
                 self.rxdata = self.conn.recv(1024)
                 self.rxdata = self.rxdata.decode('utf-8')
@@ -50,8 +49,8 @@ class Socket_Server(threading.Thread):
                     try:
                         self.rxdata = eval(self.rxdata)
                         heapq.heappush(self.dataQ, self.rxdata)
-                    except:
-                        pass
+                    except Exception as e:
+                        print(e)
         
 class Socket_Client(threading.Thread):
     def __init__(self):
