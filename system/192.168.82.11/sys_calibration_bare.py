@@ -5,6 +5,7 @@ import picamera
 from picamera.array import PiRGBArray
 import time
 from scipy.spatial.transform import Rotation
+import subprocess as sp
 
 # Calibration Settings
 MinMarkerCount = 2
@@ -98,10 +99,12 @@ def runCalibration():
 	
 	# Variable to store frame
 	capture = PiRGBArray(camera, size=RESOLUTION)
-	print("here1")
+
 	# Capture frame from PiCamera
 	camera.capture(capture, 'rgb')
 	frame = capture.array
+	capture.truncate(0)
+
 	'''
 	
 	videoCmd = "raspistill -o ~/Camera_Indoor_Positioning/tests/cal.bmp -w 2016 -h 1520"
@@ -109,7 +112,7 @@ def runCalibration():
 	
 	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/tests/cal.bmp")
 	
-	cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
+	#cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
 	
 	# ArUco detection is faster in grayscale
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -154,3 +157,4 @@ def runCalibration():
 		print("Number of markers detected:", numDetectedMarkers)
 		camera.close()
 		return numDetectedMarkers, None, None, cameraMatrix, cameraDistortion, None, None
+		
