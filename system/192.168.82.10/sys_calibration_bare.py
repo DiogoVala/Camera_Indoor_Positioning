@@ -112,7 +112,7 @@ def runCalibration():
 	
 	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/tests/cal.bmp")
 	
-	cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
+	#cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
 	
 	# ArUco detection is faster in grayscale
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

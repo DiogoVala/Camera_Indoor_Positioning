@@ -85,10 +85,11 @@ def frame_processor(frameID, frame):
 
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
+
 	#cv2.imshow("frame", mask_low)
 	#cv2.waitKey(1)
 
-	'''
+	
 	# Blob detector using low resolution parameters
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
 
@@ -101,17 +102,20 @@ def frame_processor(frameID, frame):
 			# Round rough coordinates to the nearest integers
 			pt_x=int(round(pt[0],0))
 			pt_y=int(round(pt[1],0))
-
+			
+			keypoints_tmp=[]
 			# Crop frame around each estimated position
 			try: # Cropping near the edges of the frame was not tested
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
+				
+				# Blob detector using high resolution parameters to get accurate keypoints for each window
+				keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
 			except Exception as e:
-				print(e)
+				#print(e)
 				break
 
-			# Blob detector using high resolution parameters to get accurate keypoints for each window
-			keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
+			
 			
 			for keypoint_tmp in keypoints_tmp:
 				# Adjust keypoint coordinates according to the crop window's position within the frame
@@ -132,11 +136,11 @@ def frame_processor(frameID, frame):
 		keypoint = keypoint[0][0] 
 		
 		# Get projection coordinates in the real world
-		#keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0.0, cameraMatrix, rmat, tvec).tolist()
+		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0.0, cameraMatrix, rmat, tvec).tolist()
 		
 		# Final data for this frame 
-		#posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-	'''
+		posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
+	
 	# Save data in a heap queue. posData = None is stored if no blob is detected
 	heapq.heappush(sv_DataQ,(frameID, posData))
 	return
