@@ -5,16 +5,13 @@ import picamera
 from picamera.array import PiRGBArray
 import time
 from scipy.spatial.transform import Rotation
+import subprocess as sp
 
 # Calibration Settings
 MinMarkerCount = 2
 
 # Camera Settings
 RESOLUTION = (2016, 1520)
-camera = picamera.PiCamera()
-camera.resolution 	 = RESOLUTION
-camera.exposure_mode = 'night'
-camera.iso 			 = 1600
 
 # Camera matrix and cameraDistortion vector
 fname = "camera_intrinsics_%dx%d.npz" % (RESOLUTION[0], RESOLUTION[1])
@@ -94,6 +91,12 @@ def runCalibration():
 	camera_pos = None
 	camera_ori = None
 	
+	'''
+	camera = picamera.PiCamera()
+	camera.resolution 	 = RESOLUTION
+	camera.exposure      = 100000
+	camera.iso 			 = 1600
+	
 	# Variable to store frame
 	capture = PiRGBArray(camera, size=RESOLUTION)
 
@@ -101,9 +104,15 @@ def runCalibration():
 	camera.capture(capture, 'rgb')
 	frame = capture.array
 	capture.truncate(0)
+
+	'''
 	
-	#cv2.imshow("Calibration", frame)
-	#cv2.waitKey(5000)
+	videoCmd = "raspistill -o ~/Camera_Indoor_Positioning/tests/cal.bmp -w 2016 -h 1520"
+	sp.call(videoCmd, shell=True)
+	
+	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/tests/cal.bmp")
+	
+	cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
 	
 	# ArUco detection is faster in grayscale
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -141,7 +150,7 @@ def runCalibration():
 		print(f"Calibration time: {toc - tic:0.4f} seconds")
 		print("Number of markers detected:", numDetectedMarkers)
 		
-		camera.close()
+		#camera.close()
 		return numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec
 	else: 
 		print("Calibration Failed.")
