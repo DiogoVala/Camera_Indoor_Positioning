@@ -71,7 +71,7 @@ def frame_processor(frameID, frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2RGB) # Convert to RGB
 	frame = cv2.cvtColor(frame, cv2.COLOR_RGB2YUV) # Convert back to YUV
 	# Converting twice is faster than manually building the YUV frame from the planar frame
-
+	print(frame.shape)		
 	keypoints = [] # List of detected keypoints in the frame
 	keypoints_sizes = []
 	keypoint = None
@@ -80,9 +80,15 @@ def frame_processor(frameID, frame):
 	# Resize high resolution to low resolution
 	frame_low = cv2.resize(frame, (w//blob.rescale_factor,h//blob.rescale_factor),interpolation = cv2.INTER_NEAREST)
 
+	cv2.imshow("framer", frame_low)
+	cv2.waitKey(1)
+
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
+	cv2.imshow("frame", mask_low)
+	cv2.waitKey(1)
 
+	'''
 	# Blob detector using low resolution parameters
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
 
@@ -130,7 +136,7 @@ def frame_processor(frameID, frame):
 		
 		# Final data for this frame 
 		#posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-	
+	'''
 	# Save data in a heap queue. posData = None is stored if no blob is detected
 	heapq.heappush(sv_DataQ,(frameID, posData))
 	return
@@ -229,7 +235,7 @@ def closestDistanceBetweenLines(a0,a1,b0,b1):
 print("Starting server camera.")
 
 # Initialize Socket Server
-socket_sv = Socket_Server(intersect, cl_DataQ)
+#socket_sv = Socket_Server(intersect, cl_DataQ)
 
 time.sleep(0.2)
 
