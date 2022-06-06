@@ -24,7 +24,6 @@ class ImageProcessor(threading.Thread):
 				break
 			try:
 				if self.frame is not None:		
-					print(frame.shape)			
 					self.processor_fcn(self.frameID, self.frame) # Call function to process frame
 			except Exception as e:
 				print(e)
