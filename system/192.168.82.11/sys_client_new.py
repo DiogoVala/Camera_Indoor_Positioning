@@ -68,9 +68,15 @@ def frame_processor(frameID, frame):
 	# Resize high resolution to low resolution
 	frame_low = cv2.resize(frame, (w//blob.rescale_factor,h//blob.rescale_factor),interpolation = cv2.INTER_NEAREST)
 
+	cv2.imshow("framer", frame_low)
+	cv2.waitKey(1)
+
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
+	cv2.imshow("frame", mask_low)
+	cv2.waitKey(1)
 
+	'''
 	# Blob detector using low resolution parameters
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
 
@@ -118,7 +124,7 @@ def frame_processor(frameID, frame):
 		
 		# Final data for this frame 
 		#posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-	
+	'''
 	# Send location data to the server
 	socket_clt.txdata=(frameID,posData)
 	socket_clt.event.set()
@@ -129,13 +135,13 @@ def frame_processor(frameID, frame):
 print("Starting client camera.")
 
 # Initialize Socket Server
-socket_clt = Socket_Client()
+#socket_clt = Socket_Client()
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
-numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
-if(numDetectedMarkers < cal.MinMarkerCount):
-	print("Exiting program.")
-	quit()
+#numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
+#if(numDetectedMarkers < cal.MinMarkerCount):
+#	print("Exiting program.")
+#	quit()
 
 # Start raspividyuv subprocess to capture frames
 videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 150"

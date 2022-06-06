@@ -11,10 +11,6 @@ MinMarkerCount = 2
 
 # Camera Settings
 RESOLUTION = (2016, 1520)
-camera = picamera.PiCamera()
-camera.resolution 	 = RESOLUTION
-camera.exposure_mode = 'night'
-camera.iso 			 = 1600
 
 # Camera matrix and cameraDistortion vector
 fname = "camera_intrinsics_%dx%d.npz" % (RESOLUTION[0], RESOLUTION[1])
@@ -93,6 +89,11 @@ def runCalibration():
 	
 	camera_pos = None
 	camera_ori = None
+	
+	camera = picamera.PiCamera()
+	camera.resolution 	 = RESOLUTION
+	camera.exposure_mode = 'night'
+	camera.iso 			 = 1600
 	
 	# Variable to store frame
 	capture = PiRGBArray(camera, size=RESOLUTION)
