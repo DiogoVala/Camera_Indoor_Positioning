@@ -28,9 +28,6 @@ w = 2016
 h = 1520
 fps = 5
 
-# Minimum number of ArUco markers required for an acceptable initial calibration
-MinMarkerCount = 0
-
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 
@@ -136,7 +133,7 @@ socket_clt = Socket_Client()
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
-if(numDetectedMarkers < MinMarkerCount):
+if(numDetectedMarkers < cal.MinMarkerCount):
 	print("Exiting program.")
 	quit()
 

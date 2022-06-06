@@ -6,8 +6,15 @@ from picamera.array import PiRGBArray
 import time
 from scipy.spatial.transform import Rotation
 
+# Calibration Settings
+MinMarkerCount = 2
+
 # Camera Settings
 RESOLUTION = (2016, 1520)
+camera = picamera.PiCamera()
+camera.resolution 	 = RESOLUTION
+camera.exposure_mode = 'night'
+camera.iso 			 = 1600
 
 # Camera matrix and cameraDistortion vector
 fname = "camera_intrinsics_%dx%d.npz" % (RESOLUTION[0], RESOLUTION[1])
@@ -15,7 +22,7 @@ calib_file = np.load(fname)
 cameraMatrix=calib_file['mtx']
 cameraDistortion=calib_file['dist']
 
-#ArUco Settings
+# ArUco Settings
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_1000)
 parameters =  aruco.DetectorParameters_create()
 parameters.cornerRefinementMethod = aruco.CORNER_REFINE_SUBPIX
@@ -82,12 +89,6 @@ def organizeObjpp(markers, ids):
 	return objpp, imgPts
 
 def runCalibration():
-	
-	camera = picamera.PiCamera()
-	camera.resolution 	 = RESOLUTION
-	camera.exposure_mode = 'night'
-	camera.iso 			 = 1600
-	
 	tic = time.perf_counter()
 	
 	camera_pos = None
@@ -100,6 +101,9 @@ def runCalibration():
 	camera.capture(capture, 'rgb')
 	frame = capture.array
 	capture.truncate(0)
+	
+	#cv2.imshow("Calibration", frame)
+	#cv2.waitKey(5000)
 	
 	# ArUco detection is faster in grayscale
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -130,13 +134,12 @@ def runCalibration():
 		
 		toc = time.perf_counter()
 		
-		#print("Camera pos:\nx: %dmm\ny: %dmm\nz: %dmm" % (camera_pos[0], camera_pos[1], camera_pos[2]))
+		print("Camera pos:\nx: %dmm\ny: %dmm\nz: %dmm" % (camera_pos[0], camera_pos[1], camera_pos[2]))
 		#print("Camera ori:\nx: %.2fº\ny: %.2fº\nz: %.2fº" % (camera_ori[0], camera_ori[1], camera_ori[2]))
 		
 		print("Calibration Complete.")
 		print(f"Calibration time: {toc - tic:0.4f} seconds")
 		print("Number of markers detected:", numDetectedMarkers)
-		print("")
 		
 		camera.close()
 		return numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec

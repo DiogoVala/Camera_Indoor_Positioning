@@ -6,6 +6,9 @@ from picamera.array import PiRGBArray
 import time
 from scipy.spatial.transform import Rotation
 
+# Calibration Settings
+MinMarkerCount = 2
+
 # Camera Settings
 RESOLUTION = (2016, 1520)
 camera = picamera.PiCamera()
@@ -19,7 +22,7 @@ calib_file = np.load(fname)
 cameraMatrix=calib_file['mtx']
 cameraDistortion=calib_file['dist']
 
-#ArUco Settings
+# ArUco Settings
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_1000)
 parameters =  aruco.DetectorParameters_create()
 parameters.cornerRefinementMethod = aruco.CORNER_REFINE_SUBPIX
