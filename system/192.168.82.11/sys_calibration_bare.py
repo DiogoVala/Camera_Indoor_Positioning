@@ -92,7 +92,7 @@ def runCalibration():
 	
 	camera = picamera.PiCamera()
 	camera.resolution 	 = RESOLUTION
-	camera.exposure_mode = 'night'
+	camera.exposure      = 100000
 	camera.iso 			 = 1600
 	
 	# Variable to store frame
@@ -103,8 +103,8 @@ def runCalibration():
 	frame = capture.array
 	capture.truncate(0)
 	
-	#cv2.imshow("Calibration", frame)
-	#cv2.waitKey(5000)
+	cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
+	cv2.waitKey(5000)
 	
 	# ArUco detection is faster in grayscale
 	frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

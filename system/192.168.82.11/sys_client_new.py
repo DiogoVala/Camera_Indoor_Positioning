@@ -58,8 +58,8 @@ def frame_processor(frameID, frame):
 	frame = frame.reshape(h*3//2,w) # Reshape frame into planar YUV420
 	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2RGB) # Convert to RGB
 	frame = cv2.cvtColor(frame, cv2.COLOR_RGB2YUV) # Convert back to YUV
-	# Converting twice is faster than manually building the YUV frame from the planar frame
-	print(frame.shape)		
+	
+	# Converting twice is faster than manually building the YUV frame from the planar frame	
 	keypoints = [] # List of detected keypoints in the frame
 	keypoints_sizes = []
 	keypoint = None
@@ -76,7 +76,7 @@ def frame_processor(frameID, frame):
 	#cv2.imshow("frame", mask_low)
 	#cv2.waitKey(1)
 
-	'''
+	
 	# Blob detector using low resolution parameters
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
 
@@ -116,15 +116,15 @@ def frame_processor(frameID, frame):
 		keypoint = np.array(keypoint, dtype=np.float32).reshape(1,1,2) # Reshape to make it suitable for undistortPoints
 
 		# Correct for camera distortion  
-		keypoint = cv2.fisheye.undistortPoints(keypoint, cameraMatrix, cameraDistortion, None, cameraMatrix)
-		keypoint = keypoint[0][0] 
+		#keypoint = cv2.fisheye.undistortPoints(keypoint, cameraMatrix, cameraDistortion, None, cameraMatrix)
+		#keypoint = keypoint[0][0] 
 		
 		# Get projection coordinates in the real world
 		#keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0.0, cameraMatrix, rmat, tvec).tolist()
 		
 		# Final data for this frame 
 		#posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-	'''
+	
 	# Send location data to the server
 	socket_clt.txdata=(frameID,posData)
 	socket_clt.event.set()
@@ -138,10 +138,10 @@ print("Starting client camera.")
 socket_clt = Socket_Client()
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
-#numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
-#if(numDetectedMarkers < cal.MinMarkerCount):
-#	print("Exiting program.")
-#	quit()
+numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
+if(numDetectedMarkers < cal.MinMarkerCount):
+	print("Exiting program.")
+	quit()
 
 # Start raspividyuv subprocess to capture frames
 videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 150"
