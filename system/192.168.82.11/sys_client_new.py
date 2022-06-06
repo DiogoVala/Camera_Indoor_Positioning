@@ -73,8 +73,8 @@ def frame_processor(frameID, frame):
 
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
-	#cv2.imshow("frame", mask_low)
-	#cv2.waitKey(1)
+	cv2.imshow("frame", mask_low)
+	cv2.waitKey(1)
 
 	
 	# Blob detector using low resolution parameters
@@ -116,14 +116,14 @@ def frame_processor(frameID, frame):
 		keypoint = np.array(keypoint, dtype=np.float32).reshape(1,1,2) # Reshape to make it suitable for undistortPoints
 
 		# Correct for camera distortion  
-		#keypoint = cv2.fisheye.undistortPoints(keypoint, cameraMatrix, cameraDistortion, None, cameraMatrix)
-		#keypoint = keypoint[0][0] 
+		keypoint = cv2.fisheye.undistortPoints(keypoint, cameraMatrix, cameraDistortion, None, cameraMatrix)
+		keypoint = keypoint[0][0] 
 		
 		# Get projection coordinates in the real world
-		#keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0.0, cameraMatrix, rmat, tvec).tolist()
+		keypoint_realWorld = getWorldCoordsAtZ(keypoint, 0.0, cameraMatrix, rmat, tvec).tolist()
 		
 		# Final data for this frame 
-		#posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
+		posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
 	
 	# Send location data to the server
 	socket_clt.txdata=(frameID,posData)
