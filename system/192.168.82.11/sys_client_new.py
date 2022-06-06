@@ -59,7 +59,7 @@ def frame_processor(frameID, frame):
 	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2RGB) # Convert to RGB
 	frame = cv2.cvtColor(frame, cv2.COLOR_RGB2YUV) # Convert back to YUV
 	# Converting twice is faster than manually building the YUV frame from the planar frame
-
+	print(frame.shape)		
 	keypoints = [] # List of detected keypoints in the frame
 	keypoints_sizes = []
 	keypoint = None
