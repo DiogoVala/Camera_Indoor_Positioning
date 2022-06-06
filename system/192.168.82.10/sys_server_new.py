@@ -281,7 +281,7 @@ def DataHandler():
 		#print(e)
 	
 		
-new_thread = threading.Thread(target=test)
+new_thread = threading.Thread(target=DataHandler)
 new_thread.start()
 
 time.sleep(0.3) # Give the client some time to reach this point
