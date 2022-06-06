@@ -78,8 +78,8 @@ class Socket_Client(threading.Thread):
                         print(f"Could not find server at {HOST}.")
                         self.terminated = True
                         break
-                    print("Retrying connection.")
-                    time.sleep(1)
+                    #print("Retrying connection.")
+                    #time.sleep(1)
             
             while self.connected:
                 self.event.wait()

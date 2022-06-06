@@ -97,12 +97,12 @@ def runCalibration():
 	
 	# Variable to store frame
 	capture = PiRGBArray(camera, size=RESOLUTION)
-
+	print("here1")
 	# Capture frame from PiCamera
 	camera.capture(capture, 'rgb')
 	frame = capture.array
 	capture.truncate(0)
-	
+	print("here")
 	cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
 	cv2.waitKey(5000)
 	
