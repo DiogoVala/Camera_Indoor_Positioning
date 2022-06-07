@@ -92,8 +92,8 @@ def frame_processor(frameID, frame):
 				
 				name=str(time.time())+".jpg"
 				#cv2.imwrite(name, mask_high_crop)
-				#cv2.imshow("frame", mask_high_crop)
-				#cv2.waitKey(1)
+				cv2.imshow("frame", mask_high_crop)
+				cv2.waitKey(1)
 				
 				# Blob detector using high resolution parameters to get accurate keypoints for each window
 				keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
