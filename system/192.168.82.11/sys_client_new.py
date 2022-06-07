@@ -56,11 +56,15 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 # Processing pipeline for each frame
 def frame_processor(frameID, frame):
 	frame = frame.reshape(h*3//2,w) # Reshape frame into planar YUV420
+<<<<<<< HEAD
 	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2RGB) # Convert to RGB
 	
 	cv2.imshow("framer", cv2.resize(frame, (0,0), fx=0.4, fy=0.4))
 	cv2.waitKey(1)
 	
+=======
+	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2BGR) # Convert to RGB
+>>>>>>> a8e43004a0b75eb14b8f13012587fcc116fc1d51
 	frame = cv2.cvtColor(frame, cv2.COLOR_RGB2YUV) # Convert back to YUV
 	
 	# Converting twice is faster than manually building the YUV frame from the planar frame	
@@ -74,10 +78,11 @@ def frame_processor(frameID, frame):
 
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
-	cv2.imshow("frame", mask_low)
-	cv2.waitKey(1)
 
+<<<<<<< HEAD
 	'''
+=======
+>>>>>>> a8e43004a0b75eb14b8f13012587fcc116fc1d51
 	# Blob detector using low resolution parameters
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
 
@@ -90,19 +95,28 @@ def frame_processor(frameID, frame):
 			# Round rough coordinates to the nearest integers
 			pt_x=int(round(pt[0],0))
 			pt_y=int(round(pt[1],0))
-
+			
 			keypoints_tmp=[]
 			# Crop frame around each estimated position
 			try: # Cropping near the edges of the frame was not tested
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 				
+				name=str(time.time())+".jpg"
+				#cv2.imwrite(name, mask_high_crop)
+				#cv2.imshow("frame", mask_high_crop)
+				#cv2.waitKey(1)
+				
 				# Blob detector using high resolution parameters to get accurate keypoints for each window
 				keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
 			except Exception as e:
 				#print(e)
 				break
+<<<<<<< HEAD
 			
+=======
+
+>>>>>>> a8e43004a0b75eb14b8f13012587fcc116fc1d51
 			for keypoint_tmp in keypoints_tmp:
 				# Adjust keypoint coordinates according to the crop window's position within the frame
 				x = keypoint_tmp.pt[0]+pt_x-blob.crop_window
@@ -126,7 +140,11 @@ def frame_processor(frameID, frame):
 		
 		# Final data for this frame 
 		posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
+<<<<<<< HEAD
 	'''
+=======
+	
+>>>>>>> a8e43004a0b75eb14b8f13012587fcc116fc1d51
 	# Send location data to the server
 	#socket_clt.txdata=(frameID,posData)
 	#socket_clt.event.set()
