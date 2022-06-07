@@ -155,6 +155,5 @@ def runCalibration():
 	else: 
 		print("Calibration Failed.")
 		print("Number of markers detected:", numDetectedMarkers)
-		camera.close()
 		return numDetectedMarkers, None, None, cameraMatrix, cameraDistortion, None, None
 		
