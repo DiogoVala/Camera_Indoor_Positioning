@@ -70,10 +70,10 @@ def frame_processor(frameID, frame):
 
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
-
+	
 	# Blob detector using low resolution parameters
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
-	'''
+	
 	# Get rough LED position from low resolution mask
 	if keypoints_low:
 		pts_rough = [keypoint.pt for keypoint in keypoints_low] # List of keypoint coordinates in low resolution
@@ -124,10 +124,10 @@ def frame_processor(frameID, frame):
 		
 		# Final data for this frame 
 		posData=[(keypoint_realWorld[0][0], keypoint_realWorld[1][0]), (camera_pos[0][0],camera_pos[1][0],camera_pos[2][0])]
-	'''
+	
 	# Send location data to the server
-	#socket_clt.txdata=(frameID,posData)
-	#socket_clt.event.set()
+	socket_clt.txdata=(frameID,posData)
+	socket_clt.event.set()
 
 	return
 
@@ -135,15 +135,15 @@ def frame_processor(frameID, frame):
 print("Starting client camera.")
 
 # Initialize Socket Server
-#socket_clt = Socket_Client()
+socket_clt = Socket_Client()
 
-'''
+
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
 if(numDetectedMarkers < cal.MinMarkerCount):
 	print("Exiting program.")
 	quit()
-'''
+
 # Start raspividyuv subprocess to capture frames
 videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 100"
 videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
