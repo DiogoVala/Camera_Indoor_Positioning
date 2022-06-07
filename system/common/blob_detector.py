@@ -5,29 +5,37 @@ import numpy as np
 lower_range = np.array([  0,  0, 76])
 upper_range = np.array([203,255,173])
 
-rescale_factor=4
+rescale_factor=8
 crop_window = 60
 
 # Blob detector (High Resolution)
 params = cv2.SimpleBlobDetector_Params()
 params.filterByArea = True
+<<<<<<< HEAD
 params.minArea = 10
+=======
+params.minArea = 40
+>>>>>>> 281617fe22707373a36110a2e7bdcf3c39729388
 params.maxArea = 6000
-params.minDistBetweenBlobs = 20
-params.filterByCircularity = False
-params.minCircularity = 0
+params.minDistBetweenBlobs = 300
+params.filterByCircularity = True
+params.minCircularity = 0.7
 params.filterByConvexity = True
-params.minConvexity = 0
+params.minConvexity = 0.1
 params.filterByInertia = True
-params.minInertiaRatio = 0
+params.minInertiaRatio = 0.1
 detector_h = cv2.SimpleBlobDetector_create(params)
 
 # Blob detector (Rescaled Resolution)
 params_low = cv2.SimpleBlobDetector_Params()
 params_low.filterByArea = True
+<<<<<<< HEAD
 params_low.minArea = 4
+=======
+params_low.minArea = 10
+>>>>>>> 281617fe22707373a36110a2e7bdcf3c39729388
 params_low.maxArea = int(params.maxArea*rescale_factor)
-params_low.minDistBetweenBlobs = int(params.minDistBetweenBlobs/rescale_factor)
+params_low.minDistBetweenBlobs = 100
 params_low.filterByCircularity = params.filterByCircularity
 params_low.minCircularity = params.minCircularity
 params_low.filterByConvexity = params.filterByConvexity

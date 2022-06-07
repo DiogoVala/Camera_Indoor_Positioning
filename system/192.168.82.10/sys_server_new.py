@@ -109,6 +109,9 @@ def frame_processor(frameID, frame):
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 				
+				name=str(time.time())+".jpg"
+				cv2.imwrite(name, mask_high_crop)
+				
 				# Blob detector using high resolution parameters to get accurate keypoints for each window
 				keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
 			except Exception as e:
@@ -148,12 +151,13 @@ def frame_processor(frameID, frame):
 # Calculates closest approach of two lines
 prev_time = time.time()
 def intersect(svData, clData):
-		
+	print("svData", svData)
+	print("clData", clData)
 	try:
-		svCamPos = [svData[1][0], svData[1][1], svData[1][2]] # Server camera position
-		svProj   = [svData[0][0], svData[0][1], 0.0]		  # Target projection from server's perspective 
-		clCamPos = [clData[1][0], clData[1][1], clData[1][2]] # Client camera position
-		clProj   = [clData[0][0], clData[0][1], 0.0]		  # Target projection from client's perspective 
+		svCamPos = [svData[1][1][0], svData[1][1][1], svData[1][1][2]] # Server camera position
+		svProj   = [svData[1][0][0], svData[1][0][1], 0.0]		  # Target projection from server's perspective 
+		clCamPos = [clData[1][1][0], clData[1][1][1], clData[1][1][2]] # Client camera position
+		clProj   = [clData[1][0][0], clData[1][0][1], 0.0]		  # Target projection from client's perspective 
 		P0 = np.array([svCamPos, clCamPos])
 		P1 = np.array([svProj,   clProj])
 	except Exception as e:
@@ -186,14 +190,14 @@ def intersect(svData, clData):
 		a1=np.array(svCamPos)
 		
 		b0=np.array(clProj)
-		b1=np.array(clCamData)
+		b1=np.array(clCamPos)
 		d=closestDistanceBetweenLines(a0,a1,b0,b1)	
 	except Exception as e:
 		print(e)
 		d=-1
 		
-	print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (this_cam_data[1][0], this_cam_data[1][1], this_cam_data[1][2]) )
-	print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (other_cam_data[1][0], other_cam_data[1][1], other_cam_data[1][2]) )
+	print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (svCamPos[0], svCamPos[1], svCamPos[2]) )
+	print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (clCamPos[0], clCamPos[1], clCamPos[2]) )
 	print(f"Target at: (%8.2f, %8.2f, %8.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
 	print(f"Distance between lines at closest approach: %.fmm" % (d) )
 	print("\x1b[5A\r")
@@ -286,6 +290,8 @@ def DataHandler():
 		
 		timedif=svData[0]-clData[0]
 		print("%0.7f" % abs(timedif))
+		
+		intersect(svData, clData)
 		
 	except Exception as e: 
 		pass
