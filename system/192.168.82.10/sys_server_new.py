@@ -68,7 +68,7 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 # Processing pipeline for each frame
 def frame_processor(frameID, frame):
 	frame = frame.reshape(h*3//2,w) # Reshape frame into planar YUV420
-	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2RGB) # Convert to RGB
+	frame = cv2.cvtColor(frame, cv2.COLOR_YUV420p2BGR) # Convert to RGB
 	frame = cv2.cvtColor(frame, cv2.COLOR_RGB2YUV) # Convert back to YUV
 	
 	# Converting twice is faster than manually building the YUV frame from the planar frame	
@@ -80,16 +80,9 @@ def frame_processor(frameID, frame):
 	# Resize high resolution to low resolution
 	frame_low = cv2.resize(frame, (w//blob.rescale_factor,h//blob.rescale_factor),interpolation = cv2.INTER_NEAREST)
 
-	#cv2.imshow("framer", frame_low)
-	#cv2.waitKey(1)
-
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
 
-	#cv2.imshow("frame", mask_low)
-	#cv2.waitKey(1)
-
-	
 	# Blob detector using low resolution parameters
 	keypoints_low = blob.detectBlob_LowRes(mask_low)
 
@@ -110,7 +103,9 @@ def frame_processor(frameID, frame):
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 				
 				name=str(time.time())+".jpg"
-				cv2.imwrite(name, mask_high_crop)
+				#cv2.imwrite(name, mask_high_crop)
+				#cv2.imshow("frame", mask_high_crop)
+				#cv2.waitKey(1)
 				
 				# Blob detector using high resolution parameters to get accurate keypoints for each window
 				keypoints_tmp = blob.detectBlob_HighRes(mask_high_crop)
@@ -118,8 +113,6 @@ def frame_processor(frameID, frame):
 				#print(e)
 				break
 
-			
-			
 			for keypoint_tmp in keypoints_tmp:
 				# Adjust keypoint coordinates according to the crop window's position within the frame
 				x = keypoint_tmp.pt[0]+pt_x-blob.crop_window
@@ -243,7 +236,7 @@ def closestDistanceBetweenLines(a0,a1,b0,b1):
 print("Starting server camera.")
 
 # Initialize Socket Server
-socket_sv = Socket_Server(intersect, cl_DataQ)
+#socket_sv = Socket_Server(intersect, cl_DataQ)
 
 #time.sleep(0.4)
 
@@ -254,7 +247,7 @@ if(numDetectedMarkers < cal.MinMarkerCount):
 	quit()
 
 # Start raspividyuv subprocess to capture frames
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 150"
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 100"
 videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
 cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE, bufsize=1)
 atexit.register(cameraProcess.terminate) # this closes the camera process in case the python scripts exits unexpectedly
