@@ -106,10 +106,9 @@ def runCalibration():
 	capture.truncate(0)
 
 	'''
-	
+	time.sleep(0.3)
 	videoCmd = "raspistill -o ~/Camera_Indoor_Positioning/tests/cal.bmp -w 2016 -h 1520"
 	sp.call(videoCmd, shell=True)
-	
 	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/tests/cal.bmp")
 	
 	#cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))

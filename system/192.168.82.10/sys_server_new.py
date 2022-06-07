@@ -80,6 +80,9 @@ def frame_processor(frameID, frame):
 	# Resize high resolution to low resolution
 	frame_low = cv2.resize(frame, (w//blob.rescale_factor,h//blob.rescale_factor),interpolation = cv2.INTER_NEAREST)
 
+	cv2.imshow("frame", frame_low)
+	cv2.waitKey(1)
+
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
 
@@ -245,6 +248,8 @@ numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat
 if(numDetectedMarkers < cal.MinMarkerCount):
 	print("Exiting program.")
 	quit()
+
+time.sleep(1)
 
 # Start raspividyuv subprocess to capture frames
 videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 100"
