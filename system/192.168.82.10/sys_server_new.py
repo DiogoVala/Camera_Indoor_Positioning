@@ -80,9 +80,6 @@ def frame_processor(frameID, frame):
 	# Resize high resolution to low resolution
 	frame_low = cv2.resize(frame, (w//blob.rescale_factor,h//blob.rescale_factor),interpolation = cv2.INTER_NEAREST)
 
-	cv2.imshow("frame", frame_low)
-	cv2.waitKey(1)
-
 	# Filter low resolution frame by YUV components
 	mask_low = cv2.inRange(frame_low, blob.lower_range, blob.upper_range)
 
@@ -147,8 +144,8 @@ def frame_processor(frameID, frame):
 # Calculates closest approach of two lines
 prev_time = time.time()
 def intersect(svData, clData):
-	print("svData", svData)
-	print("clData", clData)
+	#print("svData", svData)
+	#print("clData", clData)
 	try:
 		svCamPos = [svData[1][1][0], svData[1][1][1], svData[1][1][2]] # Server camera position
 		svProj   = [svData[1][0][0], svData[1][0][1], 0.0]		  # Target projection from server's perspective 
