@@ -137,7 +137,6 @@ print("Starting client camera.")
 # Initialize Socket Server
 socket_clt = Socket_Client()
 
-
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
 if(numDetectedMarkers < cal.MinMarkerCount):
