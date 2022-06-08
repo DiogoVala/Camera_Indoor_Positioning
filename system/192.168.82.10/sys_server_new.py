@@ -24,6 +24,7 @@ from sys_connection import *
 import image_processor as imgp
 import blob_detector as blob
 import sys_calibration_bare as cal
+import csv
 
 # Camera Settings
 w = 2016
@@ -144,6 +145,9 @@ def frame_processor(frameID, frame):
 # Calculates closest approach of two lines
 prev_time = time.time()
 def intersect(svData, clData):
+	
+	global prev_time
+	
 	#print("svData", svData)
 	#print("clData", clData)
 	try:
@@ -154,7 +158,6 @@ def intersect(svData, clData):
 		P0 = np.array([svCamPos, clCamPos])
 		P1 = np.array([svProj,   clProj])
 	except Exception as e:
-		print(e)
 		return
 		
 	"""P0 and P1 are NxD arrays defining N lines.
@@ -186,19 +189,20 @@ def intersect(svData, clData):
 		b1=np.array(clCamPos)
 		d=closestDistanceBetweenLines(a0,a1,b0,b1)	
 	except Exception as e:
-		print(e)
+		#print(e)
 		d=-1
 		
+	print("\x1b[5A\r")	
 	print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (svCamPos[0], svCamPos[1], svCamPos[2]) )
 	print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (clCamPos[0], clCamPos[1], clCamPos[2]) )
 	print(f"Target at: (%8.2f, %8.2f, %8.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
 	print(f"Distance between lines at closest approach: %.fmm" % (d) )
-	print("\x1b[5A\r")
 	'''
 	with open('pos.csv', 'a', newline='') as f:
 		writer = csv.writer(f)
 		row=[(time.time()-prev_time), round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)]
 		writer.writerow(row)
+		prev_time=time.time()
 	'''
 	return None
 
@@ -258,7 +262,7 @@ atexit.register(cameraProcess.terminate) # this closes the camera process in cas
 imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
 
 def DataHandler():
-	threading.Timer(1/fps, DataHandler).start()
+	threading.Timer(1/(fps+1), DataHandler).start()
 	
 	global sv_DataQ, cl_DataQ
 	
@@ -284,7 +288,7 @@ def DataHandler():
 			#intersect(svData, clData)
 		
 		timedif=svData[0]-clData[0]
-		print("%0.7f" % abs(timedif))
+		#print("%0.7f" % abs(timedif))
 		
 		intersect(svData, clData)
 		
