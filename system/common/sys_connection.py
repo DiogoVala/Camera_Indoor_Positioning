@@ -18,8 +18,6 @@ class Socket_Server(threading.Thread):
         self.connected = False
         self.terminated = False
         self.start()
-        while not self.connected:
-            pass
 	
     def run(self):
         while not self.terminated:
