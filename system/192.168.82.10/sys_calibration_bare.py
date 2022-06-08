@@ -143,17 +143,13 @@ def runCalibration():
 		toc = time.perf_counter()
 		
 		print("Camera pos:\nx: %dmm\ny: %dmm\nz: %dmm" % (camera_pos[0], camera_pos[1], camera_pos[2]))
-		#print("Camera ori:\nx: %.2fº\ny: %.2fº\nz: %.2fº" % (camera_ori[0], camera_ori[1], camera_ori[2]))
-		
+
 		print("Calibration Complete.")
 		print(f"Calibration time: {toc - tic:0.4f} seconds")
 		print("Number of markers detected:", numDetectedMarkers)
-		
-		#camera.close()
 		return numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec
 	else: 
 		print("Calibration Failed.")
 		print("Number of markers detected:", numDetectedMarkers)
-		camera.close()
 		return numDetectedMarkers, None, None, cameraMatrix, cameraDistortion, None, None
 		
