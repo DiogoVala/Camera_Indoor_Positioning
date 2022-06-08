@@ -155,13 +155,18 @@ imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(img
 cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
 while True:
 	#print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
-	frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
+	try:
+		frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
+	except:
+		break
 	if frame is not None:
 		frameID=time.time()
 		processor = imgp.ImgProcessorPool.pop()
 		processor.frameID = frameID
 		processor.frame = frame
 		processor.event.set()
+	else:
+		break
 
 cameraProcess.terminate() # stop the camera
 while imgp.ImgProcessorPool :
