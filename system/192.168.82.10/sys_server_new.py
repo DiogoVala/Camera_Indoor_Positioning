@@ -16,7 +16,7 @@ import subprocess as sp
 import atexit
 import heapq
 import os
-os.nice(10)
+os.nice(10) # Raise priority of Python script
 
 # Add common modules path
 sys.path.insert(1, '/home/pi/Camera_Indoor_Positioning/system/common')
@@ -30,6 +30,9 @@ import csv
 w = 2016
 h = 1520
 fps = 5
+
+# Program settings
+save_csv = False # Set to True to save position data in csv file
 
 # Piority queues to store calculated data
 # Higher priority is given to oldest data
@@ -236,31 +239,6 @@ def closestDistanceBetweenLines(a0,a1,b0,b1):
 	
 	return np.linalg.norm(pA-pB)
 	
-####### MAIN ####### 
-print("Starting server camera.")
-
-# Initialize Socket Server
-socket_sv = Socket_Server(intersect, cl_DataQ)
-
-#time.sleep(0.4)
-
-# Run system calibration before starting camera (Must be done before creating a PiCamera instance)
-numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
-if(numDetectedMarkers < cal.MinMarkerCount):
-	print("Exiting program.")
-	quit()
-
-time.sleep(1)
-
-# Start raspividyuv subprocess to capture frames
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 100"
-videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
-cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE, bufsize=1)
-atexit.register(cameraProcess.terminate) # this closes the camera process in case the python scripts exits unexpectedly
-
-# Initialize pool of threads to process each frame
-imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
-
 def DataHandler():
 	threading.Timer(1/(fps+1), DataHandler).start()
 	
@@ -293,18 +271,37 @@ def DataHandler():
 		intersect(svData, clData)
 		
 	except Exception as e: 
-		pass
-		#print(e)
-	
+		pass	
 		
-new_thread = threading.Thread(target=DataHandler)
-new_thread.start()
+		
+####### MAIN ####### 
+print("Starting server camera.")
 
-time.sleep(0.3) # Give the client some time to reach this point
+# Initialize Socket Server
+socket_sv = Socket_Server(intersect, cl_DataQ)
+
+# Run system calibration before starting camera (Must be done before creating a PiCamera instance)
+numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
+if(numDetectedMarkers < cal.MinMarkerCount):
+	print("Exiting program.")
+	quit()
+
+# Start raspividyuv subprocess to capture frames
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 100"
+videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
+cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE, bufsize=1)
+atexit.register(cameraProcess.terminate) # this closes the camera process in case the python scripts exits unexpectedly
+
+# Initialize pool of threads to process each frame
+imgp.ImgProcessorPool = [imgp.ImageProcessor(frame_processor) for i in range(imgp.nProcess)]
+
+# Start the data handler thread
+data_handler_th = threading.Thread(target=DataHandler)
+data_handler_th.start()
+
 cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
-
 while True:
-	#print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
+	print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
 	frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
 	if frame is not None:
 		try:
