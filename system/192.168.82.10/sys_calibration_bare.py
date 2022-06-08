@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation
 import subprocess as sp
 
 # Calibration Settings
-MinMarkerCount = 2
+MinMarkerCount = 4
 
 # Camera Settings
 RESOLUTION = (2016, 1520)
@@ -91,26 +91,14 @@ def runCalibration():
 	camera_pos = None
 	camera_ori = None
 	
-	'''
-	camera = picamera.PiCamera()
-	camera.resolution 	 = RESOLUTION
-	camera.exposure      = 100000
-	camera.iso 			 = 1600
-	
-	# Variable to store frame
-	capture = PiRGBArray(camera, size=RESOLUTION)
-
-	# Capture frame from PiCamera
-	camera.capture(capture, 'rgb')
-	frame = capture.array
-	capture.truncate(0)
-
-	'''
-	time.sleep(0.3)
-	videoCmd = "raspistill -o ~/Camera_Indoor_Positioning/tests/cal.bmp -w 2016 -h 1520"
+	# Start subprocess to capture still
+	videoCmd = "raspistill -o ~/Camera_Indoor_Positioning/system/192.168.82.10/cal.bmp -w 2016 -h 1520"
 	sp.call(videoCmd, shell=True)
-	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/tests/cal.bmp")
 	
+	# Read captured image
+	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/system/192.168.82.10")
+	
+	# Show calibration image
 	#cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
 	
 	# ArUco detection is faster in grayscale
