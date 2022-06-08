@@ -200,13 +200,14 @@ def intersect(svData, clData):
 	print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (clCamPos[0], clCamPos[1], clCamPos[2]) )
 	print(f"Target at: (%8.2f, %8.2f, %8.2f)mm" % (round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)) )
 	print(f"Distance between lines at closest approach: %.fmm" % (d) )
-	'''
-	with open('pos.csv', 'a', newline='') as f:
-		writer = csv.writer(f)
-		row=[(time.time()-prev_time), round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)]
-		writer.writerow(row)
-		prev_time=time.time()
-	'''
+	
+	if save_csv:
+		with open('pos.csv', 'a', newline='') as f:
+			writer = csv.writer(f)
+			row=[(time.time()-prev_time), round(p[0][0],2), round(p[1][0],2), round(p[2][0],2)]
+			writer.writerow(row)
+			prev_time=time.time()
+	
 	return None
 
 def closestDistanceBetweenLines(a0,a1,b0,b1):

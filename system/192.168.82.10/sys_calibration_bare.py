@@ -96,7 +96,7 @@ def runCalibration():
 	sp.call(videoCmd, shell=True)
 	
 	# Read captured image
-	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/system/192.168.82.10")
+	frame=cv2.imread("/home/pi/Camera_Indoor_Positioning/system/192.168.82.10/cal.bmp")
 	
 	# Show calibration image
 	#cv2.imshow("Calibration", cv2.resize(frame, (0,0), fx=0.5, fy=0.5))
