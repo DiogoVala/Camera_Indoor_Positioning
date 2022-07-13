@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 import subprocess as sp
 import time
+from cv2 import aruco
 import atexit
 
 frames = [] # stores the video sequence for the demo
@@ -18,7 +19,7 @@ max_frames = 100000
 N_frames = 0
 
 # Video capture parameters
-(w,h) = (640, 480)
+(w,h) = (1280, 960)
 bytesPerFrame = w * h
 fps = 5 # setting to 250 will request the maximum framerate possible
 
@@ -41,6 +42,9 @@ print("Recording...")
 
 start_time = time.time()
 
+aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_1000)
+parameters =  aruco.DetectorParameters_create()
+
 while True:
     cameraProcess.stdout.flush() # discard any frames that we were not able to process in time
     # Parse the raw stream into a numpy array
@@ -49,14 +53,20 @@ while True:
 
     #convert to rgb
     frame_rgb = cv2.cvtColor(frame_yuv, cv2.COLOR_YUV420p2RGB);
+    
+    gray = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2GRAY)
+    
+    markers, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
+    frame_markers = aruco.drawDetectedMarkers(frame_rgb.copy(), markers, ids)
 
+    #cv2.imshow('webcam',frame_markers)
     # Convert YUV to BGR
     #bgr = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_I420);
 
     #frame1.shape = (h,w) # set the correct dimensions for the numpy array
     #rgb = cv2.cvtColor(yuv_frame, cv2.COLOR_YUV2RGB);
     
-    cv2.imshow("rgb", cv2.resize(frame_rgb, (0,0), fx=0.5, fy=0.5))
+    cv2.imshow("rgb", cv2.resize(frame_markers, (0,0), fx=1, fy=1))
     
     key=cv2.waitKey(1) # request maximum refresh rate
     if key == ord('q'):

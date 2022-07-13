@@ -8,8 +8,8 @@ import pandas as pd
 import time
 
 cam = cv2.VideoCapture(0)
-cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+cam.set(cv2.CAP_PROP_FRAME_WIDTH, 2016)
+cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1520)
 
 while True:
     ret,frame = cam.read()
@@ -19,22 +19,7 @@ while True:
     markers, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
     frame_markers = aruco.drawDetectedMarkers(frame.copy(), markers, ids)
 
-    x_marker_center=[]
-    y_marker_center=[]
-    for marker in markers:
-        for corner in marker:
-            x_mean=int(np.mean(corner[:,0]))
-            y_mean=int(np.mean(corner[:,1]))
-            frame = cv2.line(frame, (x_mean-10, y_mean), (x_mean+10, y_mean),(0,0,255), 2)
-            frame = cv2.line(frame, (x_mean, y_mean-10), (x_mean, y_mean+10),(0,0,255), 2)
-            x_marker_center.append(x_mean)
-            y_marker_center.append(y_mean)
-
-    if(len(x_marker_center)!=0):       
-        img_center=(int(np.mean(x_marker_center)), int(np.mean(y_marker_center)))
-        frame = cv2.circle(frame, img_center, 1,(0,0,255), 3)
-
-    cv2.imshow('webcam',frame)
+    cv2.imshow('webcam',frame_markers)
 
     if cv2.waitKey(1)&0xFF == ord('q'):
         break
