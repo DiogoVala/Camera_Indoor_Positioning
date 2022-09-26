@@ -29,7 +29,7 @@ import csv
 # Camera Settings
 w = 2016
 h = 1520
-fps = 1
+fps = 5
 
 # Program settings
 save_csv = False # Set to True to save position data in csv file
@@ -281,7 +281,7 @@ def DataHandler():
 print("Starting server camera.")
 
 # Initialize Socket Server
-#socket_sv = Socket_Server(intersect, cl_DataQ)
+socket_sv = Socket_Server(intersect, cl_DataQ)
 
 # Run system calibration before starting camera (Must be done before creating a PiCamera instance)
 numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec = cal.runCalibration()
