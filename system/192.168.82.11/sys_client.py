@@ -26,7 +26,7 @@ import sys_calibration_bare as cal
 # Camera Settings
 w = 2016
 h = 1520
-fps = 1
+fps = 5
 
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
