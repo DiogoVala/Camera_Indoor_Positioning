@@ -27,17 +27,17 @@ parameters.cornerRefinementMethod = aruco.CORNER_REFINE_SUBPIX
 # Real world position of corners (in millimeters)
 # Marker IDs (top to bottom) = 0, 1, 2, 3, etc.
 ################  	  Corner 0 	 #####     Corner 1   #####     Corner 2 #######    Corner 3 #####
-objp=np.array([[ 125, 125, 0.0], [ 275, 125, 0.0], [ 275, 275, 0.0], [ 125, 275,  0],\
-			   [2025, 125, 0.0], [2175, 125, 0.0], [2175, 275, 0.0], [2025, 275,  0],\
-			   [ 125,1225, 0.0], [ 275,1225, 0.0], [ 275,1375, 0.0], [ 125,1375,  0],\
-			   [2025,1225, 0.0], [2175,1225, 0.0], [2175,1375, 0.0], [2025,1375,  0],\
-			   [ 125,2625, 0.0], [ 275,2625, 0.0], [ 275,2775, 0.0], [ 125,2775,  0],\
-			   [2025,2625, 0.0], [2175,2625, 0.0], [2175,2775, 0.0], [2025,2775,  0],\
-			   [ 125,3725, 0.0], [ 275,3725, 0.0], [ 275,3875, 0.0], [ 125,3875,  0],\
-			   [2025,3725, 0.0], [2175,3725, 0.0], [2175,3875, 0.0], [2025,3875,  0],\
-			   [1075, 625, 0.0], [1225, 625, 0.0], [1225, 775, 0.0], [1075, 775,  0],\
-			   [1075,1825, 0.0], [1225,1825, 0.0], [1225,1975, 0.0], [1075,1975,  0],\
-			   [1075,3025, 0.0], [1225,3025, 0.0], [1225,3175, 0.0], [1075,3175,  0]],\
+objp=np.array([[ 125, 125, 0.0], [ 275, 125, 0.0], [ 275, 275, 0.0], [ 125, 275, 0.0],\
+			   [2025, 125, 0.0], [2175, 125, 0.0], [2175, 275, 0.0], [2025, 275, 0.0],\
+			   [ 125,1125, 0.0], [ 275,1125, 0.0], [ 275,1275, 0.0], [ 125,1275, 0.0],\
+			   [2025,1125, 0.0], [2175,1125, 0.0], [2175,1275, 0.0], [2025,1275, 0.0],\
+			   [ 125,2521, 0.0], [ 275,2521, 0.0], [ 275,2671, 0.0], [ 125,2671, 0.0],\
+			   [2025,2521, 0.0], [2175,2521, 0.0], [2175,2671, 0.0], [2025,2671, 0.0],\
+			   [ 125,3518, 0.0], [ 275,3518, 0.0], [ 275,3668, 0.0], [ 125,3668, 0.0],\
+			   [2025,3518, 0.0], [2175,3518, 0.0], [2175,3668, 0.0], [2025,3668, 0.0],\
+			   [1075, 625, 0.0], [1225, 625, 0.0], [1225, 775, 0.0], [1075, 775, 0.0],\
+			   [1075,1820, 0.0], [1225,1820, 0.0], [1225,1970, 0.0], [1075,1970, 0.0],\
+			   [1075,3018, 0.0], [1225,3018, 0.0], [1225,3168, 0.0], [1075,3168, 0.0]],\
 			   dtype = np.float32)
 
 def flattenList(list):
@@ -71,8 +71,8 @@ def organizeObjpp(markers, ids):
 		
 		corners=[]
 		for i, corner in enumerate(marker):
-			x=int(corner[0])
-			y=int(corner[1])
+			x=corner[0]
+			y=corner[1]
 			corners.append([x, y])
 			
 		imgPts.append(corners) # Ordered list of corners
@@ -114,6 +114,9 @@ def runCalibration():
 	# Undistort frame
 	frame = undistortFrame(frame)
 	
+	cv2.imwrite("frame.jpg", frame)
+	key=cv2.waitKey(0)
+	
 	# Look for ArUco markers
 	numDetectedMarkers, markers, ids = detectArucos(frame)
 	
@@ -123,7 +126,7 @@ def runCalibration():
 		objpp, imgPts = organizeObjpp(markers, ids)
 		
 		# Find the rotation and translation vectors
-		ret, rvecs, tvecs = cv2.solvePnP(objpp, imgPts, cameraMatrix, np.zeros((1,5)))
+		ret, rvecs, tvecs = cv2.solvePnP(objpp, imgPts, cameraMatrix, np.zeros((1,5)), cv2.SOLVEPNP_IPPE)
 		
 		tvec = np.array(tvecs) # Translation Vector
 		rmat,_= cv2.Rodrigues(rvecs) # Rotation matrix

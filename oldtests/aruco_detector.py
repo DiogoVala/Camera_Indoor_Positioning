@@ -19,7 +19,7 @@ while True:
     markers, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
     frame_markers = aruco.drawDetectedMarkers(frame.copy(), markers, ids)
 
-    cv2.imshow('webcam',frame_markers)
+    cv2.imshow('Marker Detection', cv2.resize(frame_markers, None, fx=0.5,fy=0.5))
 
     if cv2.waitKey(1)&0xFF == ord('q'):
         break

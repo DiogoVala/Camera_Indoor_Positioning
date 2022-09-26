@@ -25,8 +25,8 @@ dist=calib_file['dist']
 
 # Video capture settings
 cam = cv2.VideoCapture(0)
-cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 960)
+cam.set(cv2.CAP_PROP_FRAME_WIDTH, 2016)
+cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1520)
 
 time.sleep(0.1)
 
@@ -48,7 +48,7 @@ while True:
 		
 		x, y, w, h = roi
 		undistortedFrame = undistortedFrame[y:y + h, x:x + w]
-		undistortedFrame = cv2.resize(undistortedFrame, (640,480), interpolation = cv2.INTER_LANCZOS4)
+		undistortedFrame = cv2.resize(undistortedFrame, (2016,1520), interpolation = cv2.INTER_LANCZOS4)
 
 		frame = undistortedFrame
 		

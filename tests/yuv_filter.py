@@ -27,18 +27,18 @@ capture = PiYUVArray(camera, size=RESOLUTION)
 lower_range = np.array([0,0,76])
 upper_range = np.array([203,255,173])
 # Create a window named trackbars.
-cv2.namedWindow("Trackbars")
+cv2.namedWindow("YUV Filtering")
 
 # Now create 6 trackbars that will control the lower and upper range of 
 # H,S and V channels. The Arguments are like this: Name of trackbar, 
 # window name, range,callback function. For Hue the range is 0-179 and
 # for S,V its 0-255.
-cv2.createTrackbar("L - Y", "Trackbars", 0, 255, nothing)
-cv2.createTrackbar("L - U", "Trackbars", 0, 255, nothing)
-cv2.createTrackbar("L - V", "Trackbars", 76, 255, nothing)
-cv2.createTrackbar("U - Y", "Trackbars", 203, 255, nothing)
-cv2.createTrackbar("U - U", "Trackbars", 255, 255, nothing)
-cv2.createTrackbar("U - V", "Trackbars", 173, 255, nothing)
+cv2.createTrackbar("L - Y", "YUV Filtering", 0, 255, nothing)
+cv2.createTrackbar("L - U", "YUV Filtering", 0, 255, nothing)
+cv2.createTrackbar("L - V", "YUV Filtering", 76, 255, nothing)
+cv2.createTrackbar("U - Y", "YUV Filtering", 203, 255, nothing)
+cv2.createTrackbar("U - U", "YUV Filtering", 255, 255, nothing)
+cv2.createTrackbar("U - V", "YUV Filtering", 173, 255, nothing)
 
 while True:
 
@@ -49,12 +49,12 @@ while True:
      
     # Get the new values of the trackbar in real time as the user changes 
     # them
-    l_y = cv2.getTrackbarPos("L - Y", "Trackbars")
-    l_u = cv2.getTrackbarPos("L - U", "Trackbars")
-    l_v = cv2.getTrackbarPos("L - V", "Trackbars")
-    u_y = cv2.getTrackbarPos("U - Y", "Trackbars")
-    u_u = cv2.getTrackbarPos("U - U", "Trackbars")
-    u_v = cv2.getTrackbarPos("U - V", "Trackbars")
+    l_y = cv2.getTrackbarPos("L - Y", "YUV Filtering")
+    l_u = cv2.getTrackbarPos("L - U", "YUV Filtering")
+    l_v = cv2.getTrackbarPos("L - V", "YUV Filtering")
+    u_y = cv2.getTrackbarPos("U - Y", "YUV Filtering")
+    u_u = cv2.getTrackbarPos("U - U", "YUV Filtering")
+    u_v = cv2.getTrackbarPos("U - V", "YUV Filtering")
     thearray = [[l_y,l_u,l_v],[u_y, u_u, u_v]]
     print(thearray)
     # Set the lower and upper HSV range according to the value selected
@@ -78,7 +78,7 @@ while True:
     stacked = np.hstack((mask,frame))
     
     # Show this stacked frame at 40% of the size.
-    cv2.imshow('Trackbars',cv2.resize(stacked,None,fx=0.3,fy=0.3))
+    cv2.imshow('YUV Filtering',cv2.resize(stacked,None,fx=0.45,fy=0.45))
     
     # If the user presses ESC then exit the program
     key=cv2.waitKey(33)

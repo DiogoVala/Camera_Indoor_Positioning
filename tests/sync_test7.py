@@ -28,7 +28,7 @@ fps = 5 # setting to 250 will request the maximum framerate possible
 #  "--timeout 0" specifies continuous video
 #  "--luma" discards chroma channels, only luminance is sent through the pipeline
 # see "raspividyuv --help" for more information on the parameters
-videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports"
+videoCmd = "raspividyuv -w "+str(w)+" -h "+str(h)+" --output - --timeout 0 --framerate "+str(fps)+" --nopreview -ex sports -ISO 100"
 videoCmd = videoCmd.split() # Popen requires that each parameter is a separate string
 
 #cameraProcess = sp.Popen(videoCmd, stdout=sp.PIPE) # start the camera
