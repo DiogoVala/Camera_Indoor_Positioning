@@ -48,7 +48,8 @@ class Socket_Server(threading.Thread):
                         self.rxdata = eval(self.rxdata)
                         heapq.heappush(self.dataQ, self.rxdata)
                     except Exception as e:
-                        print(e)
+                        #print(e)
+                        pass
         
 class Socket_Client(threading.Thread):
     def __init__(self):

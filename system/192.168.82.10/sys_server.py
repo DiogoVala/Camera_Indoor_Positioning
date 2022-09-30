@@ -106,8 +106,6 @@ def frame_processor(frameID, frame):
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 				
-				np.average(np.where(mask_high_crop==0), axis=1)
-				
 				#name=str(time.time())+".jpg"
 				cv2.imwrite("blob.jpg", mask_high_crop)
 				cv2.imshow("frame", mask_high_crop)
@@ -196,7 +194,6 @@ def intersect(svData, clData):
 	except Exception as e:
 		#print(e)
 		d=-1
-	
 	
 	print("\x1b[7A\r")	
 	print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (svCamPos[0], svCamPos[1], svCamPos[2]) )
@@ -311,7 +308,7 @@ def DataHandler():
 			timedif=svData[0]-clData[0]
 		
 		if stopped:	
-			timer = threading.Timer(1/(10*fps), DataHandler)
+			timer = threading.Timer(1/(fps), DataHandler)
 			timer.start()
 
 		intersect(svData, clData)

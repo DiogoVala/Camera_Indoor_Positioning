@@ -26,7 +26,8 @@ class ImageProcessor(threading.Thread):
 				if self.frame is not None:				
 					self.processor_fcn(self.frameID, self.frame) # Call function to process frame
 			except Exception as e:
-				print(e)
+				#print(e)
+				pass
 			finally:
 				self.event.clear()
 				ImgProcessorPool.append(self)
