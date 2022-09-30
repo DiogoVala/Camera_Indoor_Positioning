@@ -4,7 +4,7 @@ import threading
 import cv2
 
 # Thread management
-nProcess = 3 # Number of threads to run
+nProcess = 10 # Number of threads to run
 ImgProcessorPool = []
 
 class ImageProcessor(threading.Thread):
