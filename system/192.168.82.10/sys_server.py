@@ -29,7 +29,7 @@ import csv
 # Camera Settings
 w = 2016
 h = 1520
-fps = 5
+fps = 250
 
 # Program settings
 save_csv = False # Set to True to save position data in csv file
@@ -97,8 +97,8 @@ def frame_processor(frameID, frame):
 		
 		for pt in pts_rough:
 			# Round rough coordinates to the nearest integers
-			pt_x=int(round(pt[0],0))
-			pt_y=int(round(pt[1],0))
+			pt_x=int(math.floor(pt[0]))
+			pt_y=int(math.floor(pt[1]))
 			
 			keypoints_tmp=[]
 			# Crop frame around each estimated position
@@ -106,8 +106,10 @@ def frame_processor(frameID, frame):
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 				
+				np.average(np.where(mask_high_crop==0), axis=1)
+				
 				#name=str(time.time())+".jpg"
-				#cv2.imwrite(name, mask_high_crop)
+				cv2.imwrite("blob.jpg", mask_high_crop)
 				cv2.imshow("frame", mask_high_crop)
 				cv2.waitKey(1)
 				
@@ -194,7 +196,8 @@ def intersect(svData, clData):
 	except Exception as e:
 		#print(e)
 		d=-1
-		
+	
+	
 	print("\x1b[7A\r")	
 	print(f"Server at: (%8.2f, %8.2f, %8.2f)mm" % (svCamPos[0], svCamPos[1], svCamPos[2]) )
 	print(f"Client at: (%8.2f, %8.2f, %8.2f)mm" % (clCamPos[0], clCamPos[1], clCamPos[2]) )
@@ -242,8 +245,8 @@ def closestDistanceBetweenLines(a0,a1,b0,b1):
 	
 	return np.linalg.norm(pA-pB)
 	
-def DataHandler():
-	threading.Timer(1/(fps+1), DataHandler).start()
+def DataHandler1():
+	#threading.Timer(1/(fps+1), DataHandler).start()
 	
 	global sv_DataQ, cl_DataQ
 	
@@ -275,7 +278,47 @@ def DataHandler():
 		
 	except Exception as e: 
 		pass	
+
+def DataHandler():
+	timer = threading.Timer(1/(fps), DataHandler)
+	timer.start()
+	
+	stopped = False
+	
+	global sv_DataQ, cl_DataQ
+	
+	try:
+		svData=heapq.heappop(sv_DataQ)
+		clData=heapq.heappop(cl_DataQ)
+			
+		timedif=svData[0]-clData[0]
+		#print("%0.7f" % abs(timedif))
 		
+		while(abs(timedif) > timing_threshhold):
+			stopped = True
+			timer.cancel()
+
+			if timedif > 0:
+				try:
+					clData=heapq.heappop(cl_DataQ)
+				except:
+					pass
+			else:
+				try:
+					svData=heapq.heappop(sv_DataQ)
+				except:
+					pass
+			timedif=svData[0]-clData[0]
+		
+		if stopped:	
+			timer = threading.Timer(1/(10*fps), DataHandler)
+			timer.start()
+
+		intersect(svData, clData)
+		
+	except Exception as e: 
+		#print(e)
+		pass		
 		
 ####### MAIN ####### 
 print("Starting server camera.")

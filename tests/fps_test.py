@@ -13,14 +13,14 @@ import time
 from cv2 import aruco
 import atexit
 
-max_frames = 10
+max_frames = 100
 
-N_frames = 0
+N_frames = 1
 
 # Video capture parameters
 (w,h) = (2016, 1520)
 bytesPerFrame = w * h
-fps = 5 # setting to 250 will request the maximum framerate possible
+fps = 250 # setting to 250 will request the maximum framerate possible
 
 # "raspividyuv" is the command that provides camera frames in YUV format
 #  "--output -" specifies stdout as the output
@@ -40,19 +40,12 @@ atexit.register(cameraProcess.terminate) # this closes the camera process in cas
 print("Recording...")
 
 start_time = time.time()
-
-aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_1000)
-parameters =  aruco.DetectorParameters_create()
-
 while True:
 	cameraProcess.stdout.flush() # discard any frames that we were not able to process in time
 
-	try:
-		frame_yuv = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8).reshape(h*3//2,w)
-	except:
-		pass
-
+	frame_yuv = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
 	N_frames += 1
+	
 	if N_frames > max_frames: break
 
 end_time = time.time()
