@@ -26,7 +26,7 @@ import sys_calibration_bare as cal
 # Camera Settings
 w = 2016
 h = 1520
-fps = 5
+fps = 250
 
 # Returns (x,y) real world coordinates at height z.
 def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
@@ -90,8 +90,7 @@ def frame_processor(frameID, frame):
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 				
-				name=str(time.time())+".jpg"
-				#cv2.imwrite(name, mask_high_crop)
+				cv2.imwrite("blob.jpg", mask_high_crop)
 				cv2.imshow("frame", mask_high_crop)
 				cv2.waitKey(1)
 				

@@ -137,6 +137,8 @@ def runCalibration():
 		
 		toc = time.perf_counter()
 		
+		
+		
 		print("Camera pos:\nx: %dmm\ny: %dmm\nz: %dmm" % (camera_pos[0], camera_pos[1], camera_pos[2]))
 
 		print("Calibration Complete.")
