@@ -62,7 +62,7 @@ def getWorldCoordsAtZ(image_point, z, mtx, rmat, tvec):
 
 	s = (z + tempMat2[2, 0]) / tempMat[2, 0]
 	wcPoint = np.matmul(iRot, (np.matmul(s * iCam, uvPoint) - tvec))
-
+	
 	# wcPoint[2] will not be exactly equal to z, but very close to it
 	assert int(abs(wcPoint[2] - z) * (10 ** 8)) == 0
 	wcPoint[2] = z
@@ -106,8 +106,6 @@ def frame_processor(frameID, frame):
 				yuv_crop = frame[(pt_y-blob.crop_window):(pt_y+blob.crop_window), (pt_x-blob.crop_window):(pt_x+blob.crop_window)]
 				mask_high_crop = cv2.inRange(yuv_crop, blob.lower_range, blob.upper_range)
 				
-				#name=str(time.time())+".jpg"
-				cv2.imwrite("blob.jpg", mask_high_crop)
 				cv2.imshow("frame", mask_high_crop)
 				cv2.waitKey(1)
 				
@@ -161,6 +159,7 @@ def intersect(svData, clData):
 		P0 = np.array([svCamPos, clCamPos])
 		P1 = np.array([svProj,   clProj])
 	except Exception as e:
+		print(e)
 		return
 		
 	"""P0 and P1 are NxD arrays defining N lines.
@@ -343,12 +342,14 @@ data_handler_th = threading.Thread(target=DataHandler)
 data_handler_th.start()
 
 cameraProcess.stdout.flush() # Flush whatever was sent by the subprocess in order to get a clean start
+start_time=time.time()
 while True:
 	#print("Threads in use: ", (imgp.nProcess-len(imgp.ImgProcessorPool)))
 	frame = np.frombuffer(cameraProcess.stdout.read(w*h*3//2), np.uint8)
 	if frame is not None:
 		try:
 			frameID=time.time()
+			#print("fps:",frame_Num/(frameID-start_time))
 			processor = imgp.ImgProcessorPool.pop()
 			processor.frameID = frameID
 			processor.frame = frame

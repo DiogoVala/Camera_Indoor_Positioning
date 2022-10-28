@@ -12,7 +12,6 @@ crop_window = 30
 params = cv2.SimpleBlobDetector_Params()
 params.filterByArea = True
 params.minArea = 1
-params.maxArea = 6000
 params.minDistBetweenBlobs = 300
 params.filterByCircularity = True
 params.minCircularity = 0.3
@@ -20,13 +19,14 @@ params.filterByConvexity = True
 params.minConvexity = 0.2
 params.filterByInertia = False
 params.minInertiaRatio = 0.1
+params.minThreshold = 1
+params.maxThreshold = 255 
 detector_h = cv2.SimpleBlobDetector_create(params)
 
 # Blob detector (Rescaled Resolution)
 params_low = cv2.SimpleBlobDetector_Params()
 params_low.filterByArea = True
 params_low.minArea = 1
-params_low.maxArea = int(params.maxArea*rescale_factor)
 params_low.minDistBetweenBlobs = 200
 params_low.filterByCircularity = params.filterByCircularity
 params_low.minCircularity = params.minCircularity

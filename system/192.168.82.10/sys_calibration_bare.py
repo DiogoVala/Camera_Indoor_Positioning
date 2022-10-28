@@ -113,10 +113,7 @@ def runCalibration():
 
 	# Undistort frame
 	frame = undistortFrame(frame)
-	
-	cv2.imwrite("frame.jpg", frame)
-	key=cv2.waitKey(0)
-	
+
 	# Look for ArUco markers
 	numDetectedMarkers, markers, ids = detectArucos(frame)
 	
@@ -139,12 +136,13 @@ def runCalibration():
 		camera_ori= R.as_euler('xyz', degrees=True)
 		
 		toc = time.perf_counter()
-		
-		print("Camera pos:\nx: %dmm\ny: %dmm\nz: %dmm" % (camera_pos[0], camera_pos[1], camera_pos[2]))
-
+	
+		print("Camera pos:\nx: %fmm\ny: %fmm\nz: %fmm" % (camera_pos[0], camera_pos[1], camera_pos[2]))
+		print("Camera ori:\nx: %fdeg\ny: %fdeg\nz: %fdeg" % (camera_ori[0], camera_ori[1], camera_ori[2]))
 		print("Calibration Complete.")
 		print(f"Calibration time: {toc - tic:0.4f} seconds")
 		print("Number of markers detected:", numDetectedMarkers)
+		
 		return numDetectedMarkers, camera_pos, camera_ori, cameraMatrix, cameraDistortion, rmat, tvec
 	else: 
 		print("Calibration Failed.")
